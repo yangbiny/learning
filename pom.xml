@@ -10,6 +10,9 @@
   <version>1.0.0</version>
   <modules>
     <module>imp-rpc-common</module>
+    <module>imp-rpc-config</module>
+    <module>imp-rpc-remoting</module>
+    <module>imp-rpc-core</module>
   </modules>
 
   <name>imp-rpc</name>
