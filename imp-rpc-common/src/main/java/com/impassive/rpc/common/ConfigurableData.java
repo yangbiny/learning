@@ -6,10 +6,9 @@ package com.impassive.rpc.common;
 public interface ConfigurableData {
 
   /**
-   * 配置是否合法
+   * 参数是否是非法参数
    *
-   * @return true:合法
    */
-  boolean legal();
+  void checkIllegal();
 
 }

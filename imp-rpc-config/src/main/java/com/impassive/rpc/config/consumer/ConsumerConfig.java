@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 public class ConsumerConfig extends BaseConfig {
 
   @Override
-  public boolean legal() {
-    return this.applicationConfig != null && this.registerConfig != null;
+  public void checkIllegal() {
+    super.checkIllegal();
   }
 }

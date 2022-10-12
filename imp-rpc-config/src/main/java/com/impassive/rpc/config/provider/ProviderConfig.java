@@ -12,9 +12,15 @@ public class ProviderConfig<T> extends BaseConfig {
 
   private Class<T> classType;
 
+  /**
+   * 暴露服务的入口
+   */
+  public void export() {
+    checkIllegal();
+  }
+
   @Override
-  public boolean legal() {
-    return this.applicationConfig != null && this.applicationConfig.legal()
-        && this.registerConfig != null && this.registerConfig.legal();
+  public void checkIllegal() {
+    super.checkIllegal();
   }
 }

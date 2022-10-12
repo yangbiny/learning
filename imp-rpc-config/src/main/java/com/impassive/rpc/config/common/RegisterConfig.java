@@ -1,6 +1,8 @@
 package com.impassive.rpc.config.common;
 
 import com.impassive.rpc.common.ConfigurableData;
+import com.impassive.rpc.exception.ExceptionCode;
+import com.impassive.rpc.exception.ImpConfigException;
 import com.impassive.rpc.utils.StringTools;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -20,9 +22,18 @@ public class RegisterConfig implements ConfigurableData {
   private String path = "/imp/rpc/";
 
   @Override
-  public boolean legal() {
-    return StringTools.isNotEmpty(address) &&
-        port != null && port > 0 &&
-        StringTools.isNotEmpty(path);
+  public void checkIllegal() {
+    if (StringTools.isEmpty(address)) {
+      throw new ImpConfigException(ExceptionCode.CONFIG_EXCEPTION,
+          "Register address can not be empty");
+    }
+    if (port == null || port <= 0) {
+      throw new ImpConfigException(ExceptionCode.CONFIG_EXCEPTION,
+          "Register port can not be null");
+    }
+    if (StringTools.isEmpty(path)) {
+      throw new ImpConfigException(ExceptionCode.CONFIG_EXCEPTION,
+          "Register path can not be empty");
+    }
   }
 }
