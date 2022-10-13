@@ -26,6 +26,11 @@
       <artifactId>imp-rpc-common</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.impassive</groupId>
+      <artifactId>imp-rpc-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 
 </project>
