@@ -1,0 +1,2 @@
+default=com.impassive.rpc.core.protocol.ImpProtocol
+imp-rpc=com.impassive.rpc.core.protocol.ImpProtocol

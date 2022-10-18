@@ -5,6 +5,7 @@ import com.impassive.rpc.config.BaseConfig;
 import com.impassive.rpc.core.api.Protocol;
 import com.impassive.rpc.exception.ExceptionCode;
 import com.impassive.rpc.exception.ImpConfigException;
+import com.impassive.rpc.extension.ExtensionLoader;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -12,7 +13,8 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class ProviderConfig<T> extends BaseConfig {
 
-  private final Protocol protocol = null;
+  private final Protocol protocol = ExtensionLoader.buildExtensionLoader(Protocol.class)
+      .buildDefaultExtension();
 
   private T invokeObject;
 
