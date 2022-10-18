@@ -2,8 +2,13 @@ package com.impassive.rpc.extension;
 
 import com.impassive.rpc.exception.ExceptionCode;
 import com.impassive.rpc.exception.ExtensionException;
+import com.impassive.rpc.utils.StringTools;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
@@ -20,9 +25,11 @@ public class ExtensionLoader<T> {
 
   private final Map<String, T> extensionMap = new ConcurrentHashMap<>();
 
-  private final T extensionType;
+  private final Map<String, String> keyPathMap = new ConcurrentHashMap<>();
 
-  private ExtensionLoader(T extensionType) {
+  private final Class<T> extensionType;
+
+  private ExtensionLoader(Class<T> extensionType) {
     this.extensionType = extensionType;
   }
 
@@ -71,18 +78,58 @@ public class ExtensionLoader<T> {
   }
 
   private T initExtensionNodes(String extensionKey) {
-    ClassLoader classLoader = extensionType.getClass().getClassLoader();
-    String extensionFileName = extensionType.toString();
+
+    String path = keyPathMap.get(extensionKey);
+    if (StringTools.isNotEmpty(path)) {
+      return initInstance(path);
+    }
+
+    String extensionFileName = "imp-rpc/" + extensionType.getName();
     try {
-      Enumeration<URL> resources = classLoader.getResources(extensionFileName);
+      Enumeration<URL> resources = ClassLoader.getSystemResources(extensionFileName);
       Iterator<URL> urlIterator = resources.asIterator();
       while (urlIterator.hasNext()) {
         URL next = urlIterator.next();
+        buildResource(next);
       }
     } catch (IOException e) {
       throw new ExtensionException(ExceptionCode.EXTENSION_FILE_LOAD_EXCEPTION, "扩展点加载失败", e);
     }
-    return null;
+    path = keyPathMap.get(extensionKey);
+    if (StringTools.isEmpty(path)) {
+      throw new ExtensionException(ExceptionCode.EXTENSION_EXCEPTION,
+          String.format("扩展点不存在：key = %s", extensionKey));
+    }
+    return initInstance(path);
+  }
+
+  @SuppressWarnings("unchecked")
+  private T initInstance(String classPath) {
+    try {
+      Class<?> aClass = Class.forName(classPath);
+      return (T) aClass.getConstructor().newInstance();
+    } catch (ClassNotFoundException e) {
+      throw new ExtensionException(ExceptionCode.EXTENSION_EXCEPTION, "找不到对应的类", e);
+    } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
+      throw new ExtensionException(ExceptionCode.EXTENSION_EXCEPTION, "实例化对象失败", e);
+    }
+  }
+
+  private void buildResource(URL url) {
+    try (BufferedReader reader = new BufferedReader(
+        new InputStreamReader(url.openStream(), StandardCharsets.UTF_8))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        String[] split = line.split("=");
+        if (split.length != 2) {
+          throw new ExtensionException(ExceptionCode.EXTENSION_CONFIG_EXCEPTION,
+              String.format("扩展点配置不合法 ：path = %s，content = %s", url.getPath(), line));
+        }
+        keyPathMap.put(split[0], split[1]);
+      }
+    } catch (IOException e) {
+      throw new ExtensionException(ExceptionCode.EXTENSION_FILE_LOAD_EXCEPTION, "读取文件失败", e);
+    }
   }
 
 

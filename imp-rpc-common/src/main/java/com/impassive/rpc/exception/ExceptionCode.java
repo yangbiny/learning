@@ -17,4 +17,9 @@ public class ExceptionCode {
    */
   public static int EXTENSION_FILE_LOAD_EXCEPTION = 2001;
 
+  /**
+   * 扩展点 配置问题
+   */
+  public static int EXTENSION_CONFIG_EXCEPTION = 2002;
+
 }
