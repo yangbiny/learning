@@ -1,6 +1,6 @@
 package com.impassive.rpc.core.api;
 
-import com.impassive.rpc.common.Url;
+import com.impassive.rpc.common.URL;
 
 public interface Protocol {
 
@@ -9,6 +9,6 @@ public interface Protocol {
    *
    * @param url 需要暴露服务的 url 信息
    */
-  void export(Url url);
+  void export(URL url);
 
 }

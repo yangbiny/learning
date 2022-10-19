@@ -1,6 +1,8 @@
 package com.impassive.rpc.config.provider;
 
-import com.impassive.rpc.common.Url;
+import com.impassive.rpc.common.URL;
+import com.impassive.rpc.common.URLApplication;
+import com.impassive.rpc.common.URLRegisterAddress;
 import com.impassive.rpc.config.BaseConfig;
 import com.impassive.rpc.core.api.Protocol;
 import com.impassive.rpc.exception.ExceptionCode;
@@ -24,12 +26,23 @@ public class ProviderConfig<T> extends BaseConfig {
    * 暴露服务的入口
    */
   public void export() {
+    // 1. 检查参数
     checkIllegal();
     if (this.classType == null) {
       //noinspection unchecked
       this.classType = (Class<T>) invokeObject.getClass();
     }
-    Url url = new Url();
+    // 2. 构建URL
+    URL url = new URL(
+        classType,
+        new URLApplication(this.applicationConfig.getApplicationName()),
+        new URLRegisterAddress(
+            this.registerConfig.getAddress(),
+            this.registerConfig.getPort(),
+            this.registerConfig.getPath()
+        )
+    );
+    // 3. 暴露服务
     protocol.export(url);
   }
 

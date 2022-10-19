@@ -22,4 +22,8 @@ public class ExceptionCode {
    */
   public static int EXTENSION_CONFIG_EXCEPTION = 2002;
 
+  /**
+   * 服务暴露的相关异常
+   */
+  public static int SERVICE_EXPORTER_EXCEPTION = 3000;
 }
