@@ -33,8 +33,9 @@ public class ProviderConfig<T> extends BaseConfig {
       this.classType = (Class<T>) invokeObject.getClass();
     }
     // 2. 构建URL
-    URL url = new URL(
+    URL<T> url = new URL<>(
         classType,
+        invokeObject,
         new URLApplication(this.applicationConfig.getApplicationName()),
         new URLRegisterAddress(
             this.registerConfig.getAddress(),

@@ -12,10 +12,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ImpProtocol implements Protocol {
 
-  private static final Map<Class<?>, URL> exportedUrlMap = new ConcurrentHashMap<>();
+  private static final Map<Class<?>, URL<?>> exportedUrlMap = new ConcurrentHashMap<>();
 
   @Override
-  public void export(URL url) {
+  public void export(URL<?> url) {
     // 1. 检查 服务是否已经暴露
     checkIsExported(url);
     // 2. 打开 端口
@@ -32,9 +32,14 @@ public class ImpProtocol implements Protocol {
     exportedUrlMap.put(url.getClassType(), url);
   }
 
-  private void checkIsExported(URL url) {
+  @Override
+  public <T> T refer(URL<T> refer) {
+    return null;
+  }
+
+  private void checkIsExported(URL<?> url) {
     Class<?> classType = url.getClassType();
-    URL exportedUrl = exportedUrlMap.get(classType);
+    URL<?> exportedUrl = exportedUrlMap.get(classType);
     if (exportedUrl != null) {
       throw new ServiceExportException(ExceptionCode.SERVICE_EXPORTER_EXCEPTION,
           String.format("不允许重复暴露服务 : %s", classType.getName()));

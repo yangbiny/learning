@@ -9,6 +9,8 @@ public interface Protocol {
    *
    * @param url 需要暴露服务的 url 信息
    */
-  void export(URL url);
+  void export(URL<?> url);
+
+  <T> T refer(URL<T> refer);
 
 }

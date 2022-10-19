@@ -1,0 +1,1 @@
+default=com.impassive.rpc.core.remote.NettyRemoteExchange
