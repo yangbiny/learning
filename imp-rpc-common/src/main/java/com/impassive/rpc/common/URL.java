@@ -16,15 +16,18 @@ public class URL<T> {
 
   private final URLRegisterAddress registerAddress;
 
+  private final UrlProtocol protocol;
+
   public URL(
       Class<T> classType,
       T invokeObject,
       URLApplication application,
-      URLRegisterAddress registerAddress
-  ) {
+      URLRegisterAddress registerAddress,
+      UrlProtocol protocol) {
     this.classType = classType;
     this.invokeObject = invokeObject;
     this.application = application;
     this.registerAddress = registerAddress;
+    this.protocol = protocol;
   }
 }

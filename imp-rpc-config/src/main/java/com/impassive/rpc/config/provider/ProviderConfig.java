@@ -3,7 +3,9 @@ package com.impassive.rpc.config.provider;
 import com.impassive.rpc.common.URL;
 import com.impassive.rpc.common.URLApplication;
 import com.impassive.rpc.common.URLRegisterAddress;
+import com.impassive.rpc.common.UrlProtocol;
 import com.impassive.rpc.config.BaseConfig;
+import com.impassive.rpc.config.common.ProtocolConfig;
 import com.impassive.rpc.core.api.Protocol;
 import com.impassive.rpc.exception.ExceptionCode;
 import com.impassive.rpc.exception.ImpConfigException;
@@ -21,6 +23,8 @@ public class ProviderConfig<T> extends BaseConfig {
   private T invokeObject;
 
   private Class<T> classType;
+
+  private ProtocolConfig protocolConfig;
 
   /**
    * 暴露服务的入口
@@ -41,8 +45,12 @@ public class ProviderConfig<T> extends BaseConfig {
             this.registerConfig.getAddress(),
             this.registerConfig.getPort(),
             this.registerConfig.getPath()
-        )
-    );
+        ),
+        new UrlProtocol(
+            this.protocolConfig.getAddress(),
+            this.protocolConfig.getPort()
+
+        ));
     // 3. 暴露服务
     protocol.export(url);
   }
@@ -50,9 +58,13 @@ public class ProviderConfig<T> extends BaseConfig {
   @Override
   public void checkIllegal() {
     super.checkIllegal();
+    if (this.protocolConfig == null) {
+      throw new ImpConfigException(ExceptionCode.CONFIG_EXCEPTION, "Protocol Config 不能为空");
+    }
+    this.protocolConfig.checkIllegal();
     if (invokeObject == null) {
       throw new ImpConfigException(ExceptionCode.CONFIG_EXCEPTION,
-          "Provider invoker can not be null");
+          "Provider invoker 不能为空");
     }
   }
 }
