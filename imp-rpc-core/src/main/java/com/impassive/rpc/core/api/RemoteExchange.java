@@ -7,6 +7,6 @@ public interface RemoteExchange {
   /**
    * 打开网络服务器
    */
-  void openServer(URL url);
+  void openServer(URL<?> url);
 
 }

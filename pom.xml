@@ -13,6 +13,7 @@
     <module>imp-rpc-config</module>
     <module>imp-rpc-remoting</module>
     <module>imp-rpc-core</module>
+    <module>imp-rpc-remote</module>
   </modules>
 
   <name>imp-rpc</name>
