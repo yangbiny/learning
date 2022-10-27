@@ -4,6 +4,6 @@ import com.impassive.rpc.common.URL;
 
 public interface Registry {
 
-  void register(URL url);
+  void register(URL<?> url);
 
 }
