@@ -33,8 +33,12 @@ public class ProviderConfig<T> extends BaseConfig {
     // 1. 检查参数
     checkIllegal();
     if (this.classType == null) {
+      Class<?>[] interfaces = invokeObject.getClass().getInterfaces();
+      if (interfaces.length == 0) {
+        throw new ImpConfigException(ExceptionCode.CONFIG_EXCEPTION, "该对象未实现任何 接口");
+      }
       //noinspection unchecked
-      this.classType = (Class<T>) invokeObject.getClass();
+      this.classType = (Class<T>) interfaces[0];
     }
     // 2. 构建URL
     URL<T> url = new URL<>(

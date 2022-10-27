@@ -3,7 +3,6 @@ package com.impassive.rpc.config.common;
 import com.impassive.rpc.common.ConfigurableData;
 import com.impassive.rpc.exception.ExceptionCode;
 import com.impassive.rpc.exception.ImpConfigException;
-import com.impassive.rpc.utils.StringTools;
 import lombok.Data;
 
 @Data
