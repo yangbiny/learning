@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.apache.zookeeper.CreateMode;
 
 public class ZookeeperRegistry implements Registry {
 
@@ -20,6 +21,30 @@ public class ZookeeperRegistry implements Registry {
   public void register(URL<?> url) {
     URLRegisterAddress registerAddress = url.getRegisterAddress();
     initClient(registerAddress);
+    String format = String.format("/imp/rpc/%s/%s/provider",
+        url.getApplication().applicationName(),
+        url.getClassType().getSimpleName());
+
+    StringBuilder sb = new StringBuilder();
+    try {
+
+      boolean first = false;
+      for (char c : format.toCharArray()) {
+        if (c == '/' && first) {
+          String path = zookeeperClient.create()
+              .withMode(CreateMode.PERSISTENT)
+              .forPath(sb.toString());
+          System.out.println(path);
+        }
+        if (c == '/') {
+          first = true;
+        }
+        sb.append(c);
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+
 
   }
 
@@ -28,7 +53,7 @@ public class ZookeeperRegistry implements Registry {
       return;
     }
     try {
-      if (init.compareAndExchange(false, true)) {
+      if (init.compareAndSet(false, true)) {
         String address = String.format("%s:%s/%s", registerAddress.address(),
             registerAddress.port(),
             registerAddress.path());

@@ -19,7 +19,7 @@ public class RegisterConfig implements ConfigurableData {
 
   private Integer port;
 
-  private String path = "/imp/rpc/";
+  private String path = "/imp/rpc";
 
   @Override
   public void checkIllegal() {
@@ -34,6 +34,10 @@ public class RegisterConfig implements ConfigurableData {
     if (StringTools.isEmpty(path)) {
       throw new ImpConfigException(ExceptionCode.CONFIG_EXCEPTION,
           "Register path can not be empty");
+    }
+    if (StringTools.notStartWith(path, "/") || StringTools.endWith(path, "/")) {
+      throw new ImpConfigException(ExceptionCode.CONFIG_EXCEPTION,
+          "Register path must start with '/' and must not end with '/'");
     }
   }
 }

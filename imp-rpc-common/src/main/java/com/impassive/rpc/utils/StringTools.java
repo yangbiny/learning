@@ -16,4 +16,17 @@ public class StringTools {
     return Objects.equals(str1, str2);
   }
 
+  public static boolean endWith(String path, String sub) {
+    if (isEmpty(path)) {
+      return false;
+    }
+    return path.endsWith(sub);
+  }
+
+  public static boolean notStartWith(String path, String sub) {
+    if (isEmpty(path)) {
+      return true;
+    }
+    return !path.startsWith(sub);
+  }
 }

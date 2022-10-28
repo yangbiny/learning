@@ -9,7 +9,7 @@ public record URLRegisterAddress(String address, Integer port, String path) {
 
   public String path() {
     if (StringTools.isEmpty(path)) {
-      return "imp/rpc";
+      return "/imp/rpc";
     }
     if (this.path.startsWith("/")) {
       return this.path.substring(1);
