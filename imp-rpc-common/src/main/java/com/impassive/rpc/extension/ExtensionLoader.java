@@ -133,8 +133,4 @@ public class ExtensionLoader<T> {
     }
   }
 
-
-  public T buildExtension(ImpUrl<?> impUrl) {
-    return null;
-  }
 }

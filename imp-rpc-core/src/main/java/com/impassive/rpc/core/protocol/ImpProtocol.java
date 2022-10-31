@@ -26,7 +26,7 @@ public class ImpProtocol implements Protocol {
     // 3. 写入注册中心
     Registry registry = ExtensionLoader
         .buildExtensionLoader(Registry.class)
-        .buildExtension(impUrl);
+        .buildDefaultExtension();
     registry.register(impUrl);
 
     exportedUrlMap.put(impUrl.getClassType(), impUrl);
