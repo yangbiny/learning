@@ -6,8 +6,10 @@ import com.impassive.rpc.core.api.RegistryFactory;
 
 public abstract class AbstractRegistryFactory implements RegistryFactory {
 
+  protected abstract Registry doBuildRegistry(ImpUrl<?> url);
+
   @Override
   public Registry buildRegistry(ImpUrl<?> url) {
-    return null;
+    return doBuildRegistry(url);
   }
 }
