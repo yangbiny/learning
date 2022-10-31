@@ -1,5 +1,6 @@
 package com.impassive.rpc.extension;
 
+import com.impassive.rpc.common.ImpUrl;
 import com.impassive.rpc.exception.ExceptionCode;
 import com.impassive.rpc.exception.ExtensionException;
 import com.impassive.rpc.utils.StringTools;
@@ -133,4 +134,7 @@ public class ExtensionLoader<T> {
   }
 
 
+  public T buildExtension(ImpUrl<?> impUrl) {
+    return null;
+  }
 }

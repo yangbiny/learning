@@ -11,9 +11,6 @@ public record URLRegisterAddress(String address, Integer port, String path) {
     if (StringTools.isEmpty(path)) {
       return "/imp/rpc";
     }
-    if (this.path.startsWith("/")) {
-      return this.path.substring(1);
-    }
     return path;
   }
 

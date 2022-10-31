@@ -1,67 +1,76 @@
 package com.impassive.rpc.core.registry;
 
-import com.impassive.rpc.common.URL;
+import com.impassive.rpc.common.ImpUrl;
 import com.impassive.rpc.common.URLRegisterAddress;
 import com.impassive.rpc.core.api.Registry;
 import com.impassive.rpc.exception.ExceptionCode;
 import com.impassive.rpc.exception.ServiceException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.data.Stat;
 
+@Slf4j
 public class ZookeeperRegistry implements Registry {
 
   private final AtomicBoolean init = new AtomicBoolean(false);
 
   private CuratorFramework zookeeperClient;
 
+  public ZookeeperRegistry(ImpUrl<?> impUrl) {
+    this.zookeeperClient = initClient(impUrl);
+  }
+
   @Override
-  public void register(URL<?> url) {
-    URLRegisterAddress registerAddress = url.getRegisterAddress();
-    initClient(registerAddress);
-    String format = String.format("/imp/rpc/%s/%s/provider",
-        url.getApplication().applicationName(),
-        url.getClassType().getSimpleName());
-
-    StringBuilder sb = new StringBuilder();
+  public void register(ImpUrl<?> impUrl) {
+    String format = buildRegisterPath(impUrl);
     try {
-
-      boolean first = false;
-      for (char c : format.toCharArray()) {
-        if (c == '/' && first) {
-          String path = zookeeperClient.create()
-              .withMode(CreateMode.PERSISTENT)
-              .forPath(sb.toString());
-          System.out.println(path);
-        }
-        if (c == '/') {
-          first = true;
-        }
-        sb.append(c);
+      Stat stat = zookeeperClient.checkExists().forPath(format);
+      if (stat != null) {
+        log.error("duplicated exported service : {}", impUrl.getClassType());
+        throw new ServiceException(ExceptionCode.SERVICE_EXPORTER_EXCEPTION,
+            "service has exported");
       }
+      zookeeperClient.create()
+          .creatingParentsIfNeeded()
+          .withMode(CreateMode.PERSISTENT)
+          .forPath(format);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
 
+  }
+
+  private String buildRegisterPath(ImpUrl<?> impUrl) {
+    return String.format("%s/%s/%s/provider",
+        impUrl.getRegisterAddress().path(),
+        impUrl.getApplication().applicationName(),
+        impUrl.getClassType().getSimpleName());
+  }
+
+  @Override
+  public void unRegister(ImpUrl<?> impUrl) {
 
   }
 
-  private void initClient(URLRegisterAddress registerAddress) {
+  private CuratorFramework initClient(ImpUrl<?> impUrl) {
     if (init.get()) {
-      return;
+      return null;
     }
+    URLRegisterAddress registerAddress = impUrl.getRegisterAddress();
     try {
       if (init.compareAndSet(false, true)) {
-        String address = String.format("%s:%s/%s", registerAddress.address(),
-            registerAddress.port(),
-            registerAddress.path());
+        String address = String.format("%s:%s", registerAddress.address(),
+            registerAddress.port());
 
         zookeeperClient = CuratorFrameworkFactory.newClient(address,
             new ExponentialBackoffRetry(1000, 10));
         zookeeperClient.start();
       }
+      return zookeeperClient;
     } catch (Exception e) {
       init.set(false);
       throw new ServiceException(ExceptionCode.SERVICE_EXPORTER_EXCEPTION, e);

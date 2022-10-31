@@ -1,9 +1,11 @@
 package com.impassive.rpc.core.api;
 
-import com.impassive.rpc.common.URL;
+import com.impassive.rpc.common.ImpUrl;
 
 public interface Registry {
 
-  void register(URL<?> url);
+  void register(ImpUrl<?> impUrl);
+
+  void unRegister(ImpUrl<?> impUrl);
 
 }

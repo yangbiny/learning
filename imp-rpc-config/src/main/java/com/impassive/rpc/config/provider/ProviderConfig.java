@@ -1,6 +1,6 @@
 package com.impassive.rpc.config.provider;
 
-import com.impassive.rpc.common.URL;
+import com.impassive.rpc.common.ImpUrl;
 import com.impassive.rpc.common.URLApplication;
 import com.impassive.rpc.common.URLRegisterAddress;
 import com.impassive.rpc.common.UrlProtocol;
@@ -41,7 +41,7 @@ public class ProviderConfig<T> extends BaseConfig {
       this.classType = (Class<T>) interfaces[0];
     }
     // 2. 构建URL
-    URL<T> url = new URL<>(
+    ImpUrl<T> impUrl = new ImpUrl<>(
         classType,
         invokeObject,
         new URLApplication(this.applicationConfig.getApplicationName()),
@@ -56,7 +56,7 @@ public class ProviderConfig<T> extends BaseConfig {
 
         ));
     // 3. 暴露服务
-    protocol.export(url);
+    protocol.export(impUrl);
   }
 
   @Override

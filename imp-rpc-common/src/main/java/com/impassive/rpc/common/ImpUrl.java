@@ -3,7 +3,7 @@ package com.impassive.rpc.common;
 import lombok.Getter;
 
 @Getter
-public class URL<T> {
+public class ImpUrl<T> {
 
   /**
    * 这个 url 的 实力类型是什么
@@ -18,7 +18,7 @@ public class URL<T> {
 
   private final UrlProtocol protocol;
 
-  public URL(
+  public ImpUrl(
       Class<T> classType,
       T invokeObject,
       URLApplication application,
