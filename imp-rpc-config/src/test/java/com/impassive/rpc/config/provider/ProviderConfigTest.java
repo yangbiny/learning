@@ -33,8 +33,14 @@ class ProviderConfigTest {
     testInterfaceProviderConfig.setRegisterConfig(registerConfig);
     testInterfaceProviderConfig.setApplicationConfig(applicationConfig);
     testInterfaceProviderConfig.setInvokeObject(testInterface);
-    
-    testInterfaceProviderConfig.export();
+
+    try {
+      testInterfaceProviderConfig.export();
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+      testInterfaceProviderConfig.destroy();
+    }
   }
 
   public interface TestInterface {

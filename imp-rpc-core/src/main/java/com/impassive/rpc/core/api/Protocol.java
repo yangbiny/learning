@@ -13,4 +13,6 @@ public interface Protocol {
 
   <T> T refer(ImpUrl<T> refer);
 
+  void unExport(ImpUrl<?> impUrl);
+
 }

@@ -4,6 +4,7 @@ import com.impassive.rpc.common.ImpUrl;
 import com.impassive.rpc.core.api.Protocol;
 import com.impassive.rpc.core.api.Registry;
 import com.impassive.rpc.core.api.RemoteExchange;
+import com.impassive.rpc.core.api.RegistryFactory;
 import com.impassive.rpc.exception.ExceptionCode;
 import com.impassive.rpc.exception.ServiceExportException;
 import com.impassive.rpc.extension.ExtensionLoader;
@@ -25,8 +26,9 @@ public class ImpProtocol implements Protocol {
     remoteExchange.openServer(impUrl);
     // 3. 写入注册中心
     Registry registry = ExtensionLoader
-        .buildExtensionLoader(Registry.class)
-        .buildDefaultExtension();
+        .buildExtensionLoader(RegistryFactory.class)
+        .buildDefaultExtension()
+        .buildRegistry(impUrl);
     registry.register(impUrl);
 
     exportedUrlMap.put(impUrl.getClassType(), impUrl);
@@ -35,6 +37,16 @@ public class ImpProtocol implements Protocol {
   @Override
   public <T> T refer(ImpUrl<T> refer) {
     return null;
+  }
+
+  @Override
+  public void unExport(ImpUrl<?> impUrl) {
+    // 3. 写入注册中心
+    Registry registry = ExtensionLoader
+        .buildExtensionLoader(RegistryFactory.class)
+        .buildDefaultExtension()
+        .buildRegistry(impUrl);
+    registry.unRegister(impUrl);
   }
 
   private void checkIsExported(ImpUrl<?> impUrl) {
