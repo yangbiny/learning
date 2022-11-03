@@ -2,6 +2,8 @@ package com.impassive.rpc.remote.netty;
 
 import com.impassive.rpc.common.ImpUrl;
 import com.impassive.rpc.remote.api.RemoteService;
+import com.impassive.rpc.remote.netty.code.NettyDecodeHandler;
+import com.impassive.rpc.remote.netty.code.NettyEncodeHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -24,7 +26,10 @@ public class NettyRemoteService implements RemoteService {
         .childHandler(new ChannelInitializer<SocketChannel>() {
           @Override
           protected void initChannel(SocketChannel socketChannel) {
-
+            // 编码器
+            socketChannel.pipeline().addLast("encode", new NettyEncodeHandler());
+            // 解码器
+            socketChannel.pipeline().addLast("decode", new NettyDecodeHandler());
           }
         })
         .bind(impUrl.getProtocol().port());
