@@ -8,6 +8,7 @@ import com.impassive.rpc.core.api.RegistryFactory;
 import com.impassive.rpc.exception.ExceptionCode;
 import com.impassive.rpc.exception.ServiceExportException;
 import com.impassive.rpc.extension.ExtensionLoader;
+import com.impassive.rpc.remote.api.Transport;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -20,10 +21,7 @@ public class ImpProtocol implements Protocol {
     // 1. 检查 服务是否已经暴露
     checkIsExported(impUrl);
     // 2. 打开 端口
-    RemoteExchange remoteExchange = ExtensionLoader
-        .buildExtensionLoader(RemoteExchange.class)
-        .buildDefaultExtension();
-    remoteExchange.openServer(impUrl);
+    Transport.bind(impUrl);
     // 3. 写入注册中心
     Registry registry = ExtensionLoader
         .buildExtensionLoader(RegistryFactory.class)

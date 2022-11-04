@@ -2,6 +2,7 @@ package com.impassive.rpc.remote.netty;
 
 import com.impassive.rpc.common.ImpUrl;
 import com.impassive.rpc.remote.api.RemoteService;
+import com.impassive.rpc.remote.api.RemoteUrl;
 import com.impassive.rpc.remote.netty.code.NettyDecodeHandler;
 import com.impassive.rpc.remote.netty.code.NettyEncodeHandler;
 import io.netty.bootstrap.ServerBootstrap;
@@ -16,8 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class NettyRemoteService implements RemoteService {
 
-  @Override
-  public void openService(ImpUrl<?> impUrl) {
+
+  public NettyRemoteService(RemoteUrl remoteUrl) {
     ServerBootstrap serverBootstrap = new ServerBootstrap();
     NioEventLoopGroup parentGroup = new NioEventLoopGroup();
     NioEventLoopGroup childGroup = new NioEventLoopGroup();
@@ -32,10 +33,15 @@ public class NettyRemoteService implements RemoteService {
             socketChannel.pipeline().addLast("decode", new NettyDecodeHandler());
           }
         })
-        .bind(impUrl.getProtocol().port());
+        .bind(remoteUrl.port());
     Channel channel = bind.channel();
     if (channel.isOpen()) {
-      log.debug("service is open on port : {}", impUrl.getProtocol().port());
+      log.debug("service is open on port : {}", remoteUrl);
     }
+  }
+
+  @Override
+  public void openService(ImpUrl<?> impUrl) {
+
   }
 }
