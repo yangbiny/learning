@@ -41,7 +41,7 @@ public class NettyRemoteService implements RemoteService {
   }
 
   @Override
-  public void openService(ImpUrl<?> impUrl) {
+  public void openService(ImpUrl impUrl) {
 
   }
 }

@@ -8,7 +8,7 @@ import com.impassive.rpc.common.ImpUrl;
 public class Transport {
 
 
-  public static void bind(ImpUrl<?> url) {
+  public static void bind(ImpUrl url) {
 
   }
 

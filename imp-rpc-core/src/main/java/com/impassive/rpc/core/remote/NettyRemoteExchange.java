@@ -11,7 +11,7 @@ public class NettyRemoteExchange implements RemoteExchange {
       RemoteService.class).buildDefaultExtension();
 
   @Override
-  public void openServer(ImpUrl<?> impUrl) {
+  public void openServer(ImpUrl impUrl) {
 
   }
 }

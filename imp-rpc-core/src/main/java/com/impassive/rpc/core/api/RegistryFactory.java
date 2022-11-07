@@ -4,6 +4,6 @@ import com.impassive.rpc.common.ImpUrl;
 
 public interface RegistryFactory {
 
-  Registry buildRegistry(ImpUrl<?> url);
+  Registry buildRegistry(ImpUrl url);
 
 }

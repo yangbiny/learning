@@ -7,7 +7,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import lombok.RequiredArgsConstructor;
 
 public abstract class AbstractRegistryFactory implements RegistryFactory {
 
@@ -15,10 +14,10 @@ public abstract class AbstractRegistryFactory implements RegistryFactory {
 
   private final Lock lock = new ReentrantLock();
 
-  protected abstract Registry doBuildRegistry(ImpUrl<?> url);
+  protected abstract Registry doBuildRegistry(ImpUrl url);
 
   @Override
-  public Registry buildRegistry(ImpUrl<?> url) {
+  public Registry buildRegistry(ImpUrl url) {
     String key = buildRegistryKey(url);
     Registry registry = REGISTRY_CONCURRENT_MAP.get(key);
     if (registry != null) {
@@ -38,7 +37,7 @@ public abstract class AbstractRegistryFactory implements RegistryFactory {
     return registry;
   }
 
-  private String buildRegistryKey(ImpUrl<?> url) {
+  private String buildRegistryKey(ImpUrl url) {
     return "zookeeper";
   }
 }

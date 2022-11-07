@@ -9,10 +9,10 @@ public interface Protocol {
    *
    * @param impUrl 需要暴露服务的 url 信息
    */
-  void export(ImpUrl<?> impUrl);
+  void export(ImpUrl impUrl);
 
-  <T> T refer(ImpUrl<T> refer);
+  <T> T refer(ImpUrl refer);
 
-  void unExport(ImpUrl<?> impUrl);
+  void unExport(ImpUrl impUrl);
 
 }

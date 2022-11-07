@@ -7,7 +7,7 @@ import com.impassive.rpc.core.registry.ZookeeperRegistry;
 public class ZookeeperRegistryFactory extends AbstractRegistryFactory {
 
   @Override
-  public Registry doBuildRegistry(ImpUrl<?> url) {
+  public Registry doBuildRegistry(ImpUrl url) {
     return new ZookeeperRegistry(url);
   }
 }

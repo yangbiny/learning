@@ -1,6 +1,6 @@
 package com.impassive.rpc.common;
 
-public record UrlProtocol(
+public record UrlAddress(
     String address,
 
     Integer port
