@@ -9,13 +9,13 @@ public interface Registry {
    *
    * @param impUrl url
    */
-  void register(ImpUrl<?> impUrl);
+  void register(ImpUrl impUrl);
 
   /**
    * 从 注册中心 删除 当前url的信息。如果是 多个服务器，只会删除当前的IP
    *
    * @param impUrl url
    */
-  void unRegister(ImpUrl<?> impUrl);
+  void unRegister(ImpUrl impUrl);
 
 }

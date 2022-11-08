@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class ProviderConfig<T> extends BaseConfig {
 
-  private ImpUrl<T> url = null;
+  private ImpUrl url = null;
 
   private final Protocol protocol = ExtensionLoader.buildExtensionLoader(Protocol.class)
       .buildDefaultExtension();
@@ -42,11 +42,11 @@ public class ProviderConfig<T> extends BaseConfig {
     // 2. 构建URL
 
     // 3. 暴露服务
-    protocol.export(url);
+    protocol.export(null);
   }
 
   public void destroy() {
-    protocol.unExport(url);
+    protocol.unExport();
   }
 
   @Override

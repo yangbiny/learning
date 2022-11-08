@@ -24,12 +24,12 @@ public class ZookeeperRegistry implements Registry {
 
   private CuratorFramework zookeeperClient;
 
-  public ZookeeperRegistry(ImpUrl<?> impUrl) {
+  public ZookeeperRegistry(ImpUrl impUrl) {
     this.zookeeperClient = initClient(impUrl);
   }
 
   @Override
-  public void register(ImpUrl<?> impUrl) {
+  public void register(ImpUrl impUrl) {
     String format = buildRegisterPath(impUrl);
     try {
       Set<String> ips = new HashSet<>();
@@ -54,7 +54,7 @@ public class ZookeeperRegistry implements Registry {
   }
 
   @Override
-  public void unRegister(ImpUrl<?> impUrl) {
+  public void unRegister(ImpUrl impUrl) {
     String path = buildRegisterPath(impUrl);
     try {
       Stat stat = zookeeperClient.checkExists().forPath(path);
@@ -75,7 +75,7 @@ public class ZookeeperRegistry implements Registry {
     }
   }
 
-  private CuratorFramework initClient(ImpUrl<?> impUrl) {
+  private CuratorFramework initClient(ImpUrl impUrl) {
     URLRegisterAddress registerAddress = impUrl.getRegisterAddress();
     try {
       String address = String.format("%s:%s", registerAddress.address(),
@@ -90,7 +90,7 @@ public class ZookeeperRegistry implements Registry {
     }
   }
 
-  private String buildRegisterPath(ImpUrl<?> impUrl) {
+  private String buildRegisterPath(ImpUrl impUrl) {
     return String.format("%s/%s/%s/provider",
         impUrl.getRegisterAddress().path(),
         impUrl.getApplication().applicationName(),
