@@ -10,5 +10,7 @@ public class ImpUrl {
   private UrlAddress urlAddress;
 
   private UrlParam urlParam;
-  
+
+
+
 }

@@ -1,9 +1,12 @@
 package com.impassive.rpc.common;
 
-public record UrlAddress(
-    String address,
+import lombok.Data;
 
-    Integer port
-) {
+@Data
+public class UrlAddress {
+
+  private String address;
+
+  private Integer port;
 
 }
