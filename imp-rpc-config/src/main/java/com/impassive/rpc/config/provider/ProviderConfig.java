@@ -7,6 +7,7 @@ import com.impassive.rpc.core.api.Protocol;
 import com.impassive.rpc.exception.ExceptionCode;
 import com.impassive.rpc.exception.ImpConfigException;
 import com.impassive.rpc.extension.ExtensionLoader;
+import java.util.HashMap;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -40,7 +41,13 @@ public class ProviderConfig<T> extends BaseConfig {
       this.classType = (Class<T>) interfaces[0];
     }
     // 2. 构建URL
-
+    ImpUrl url = new ImpUrl(
+        protocolConfig.getName(),
+        protocolConfig.getAddress(),
+        protocolConfig.getPort(),
+        this.classType,
+        new HashMap<>()
+    );
     // 3. 暴露服务
     protocol.export(null);
   }

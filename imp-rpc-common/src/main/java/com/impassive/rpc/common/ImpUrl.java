@@ -9,9 +9,7 @@ import lombok.Getter;
 public class ImpUrl {
 
   private String protocol;
-
   private final UrlAddress urlAddress;
-
   private final UrlParam urlParam;
 
   public ImpUrl(

@@ -15,6 +15,8 @@ public class ProtocolConfig implements ConfigurableData {
 
   private Integer port;
 
+  private String name;
+
 
   @Override
   public void checkIllegal() {
