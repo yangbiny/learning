@@ -9,4 +9,8 @@ public class UrlAddress {
 
   private Integer port;
 
+  public UrlAddress(String address, Integer port) {
+    this.address = address;
+    this.port = port;
+  }
 }
