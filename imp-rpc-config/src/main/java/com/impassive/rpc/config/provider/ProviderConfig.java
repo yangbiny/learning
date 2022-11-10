@@ -3,7 +3,9 @@ package com.impassive.rpc.config.provider;
 import com.impassive.rpc.common.ImpUrl;
 import com.impassive.rpc.config.BaseConfig;
 import com.impassive.rpc.config.common.ProtocolConfig;
+import com.impassive.rpc.core.api.Invoker;
 import com.impassive.rpc.core.api.Protocol;
+import com.impassive.rpc.core.invoker.ImpInvoker;
 import com.impassive.rpc.exception.ExceptionCode;
 import com.impassive.rpc.exception.ImpConfigException;
 import com.impassive.rpc.extension.ExtensionLoader;
@@ -48,8 +50,9 @@ public class ProviderConfig<T> extends BaseConfig {
         this.classType,
         new HashMap<>()
     );
+    Invoker<T> invoker = new ImpInvoker<>(url, classType);
     // 3. 暴露服务
-    protocol.export(null);
+    protocol.export(invoker);
   }
 
   public void destroy() {
