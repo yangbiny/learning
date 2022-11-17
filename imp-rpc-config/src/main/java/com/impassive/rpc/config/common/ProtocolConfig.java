@@ -1,5 +1,6 @@
 package com.impassive.rpc.config.common;
 
+import com.impassive.rpc.common.ConfigKeyPath;
 import com.impassive.rpc.common.ConfigurableData;
 import com.impassive.rpc.exception.ExceptionCode;
 import com.impassive.rpc.exception.ImpConfigException;
@@ -17,6 +18,11 @@ public class ProtocolConfig implements ConfigurableData {
 
   private String name;
 
+
+  @Override
+  public ConfigKeyPath keyPath() {
+    return ConfigKeyPath.protocol;
+  }
 
   @Override
   public void checkIllegal() {

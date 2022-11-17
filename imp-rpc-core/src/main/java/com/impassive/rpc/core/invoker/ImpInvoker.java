@@ -18,6 +18,11 @@ public class ImpInvoker<T> implements Invoker<T> {
   }
 
   @Override
+  public ImpUrl url() {
+    return url;
+  }
+
+  @Override
   public Class<T> getInterface() {
     return classType;
   }

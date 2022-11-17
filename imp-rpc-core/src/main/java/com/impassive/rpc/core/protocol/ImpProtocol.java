@@ -20,6 +20,7 @@ public class ImpProtocol implements Protocol {
     if (exist != null) {
       throw new ServiceException(ExceptionCode.SERVICE_EXPORTER_EXCEPTION, "该服务已经注册");
     }
+    ImpUrl url = invoker.url();
 
 
 

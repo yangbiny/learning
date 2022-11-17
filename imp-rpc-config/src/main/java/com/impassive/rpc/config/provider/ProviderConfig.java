@@ -1,5 +1,6 @@
 package com.impassive.rpc.config.provider;
 
+import com.impassive.rpc.common.ConfigKeyPath;
 import com.impassive.rpc.common.ImpUrl;
 import com.impassive.rpc.config.BaseConfig;
 import com.impassive.rpc.config.common.ProtocolConfig;
@@ -50,6 +51,8 @@ public class ProviderConfig<T> extends BaseConfig {
         this.classType,
         new HashMap<>()
     );
+    url.addParams(registerConfig);
+    url.addParams(applicationConfig);
     Invoker<T> invoker = new ImpInvoker<>(url, classType);
     // 3. 暴露服务
     protocol.export(invoker);
@@ -57,6 +60,11 @@ public class ProviderConfig<T> extends BaseConfig {
 
   public void destroy() {
     protocol.unExport();
+  }
+
+  @Override
+  public ConfigKeyPath keyPath() {
+    return ConfigKeyPath.provider;
   }
 
   @Override

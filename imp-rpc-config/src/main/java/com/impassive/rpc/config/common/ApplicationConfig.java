@@ -1,5 +1,6 @@
 package com.impassive.rpc.config.common;
 
+import com.impassive.rpc.common.ConfigKeyPath;
 import com.impassive.rpc.common.ConfigurableData;
 import com.impassive.rpc.exception.ExceptionCode;
 import com.impassive.rpc.exception.ImpConfigException;
@@ -10,6 +11,11 @@ import lombok.Data;
 public class ApplicationConfig implements ConfigurableData {
 
   private String applicationName;
+
+  @Override
+  public ConfigKeyPath keyPath() {
+    return ConfigKeyPath.application;
+  }
 
   @Override
   public void checkIllegal() {

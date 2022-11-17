@@ -5,9 +5,10 @@ package com.impassive.rpc.common;
  */
 public interface ConfigurableData {
 
+  ConfigKeyPath keyPath();
+
   /**
    * 参数是否是非法参数
-   *
    */
   void checkIllegal();
 

@@ -1,5 +1,6 @@
 package com.impassive.rpc.config.consumer;
 
+import com.impassive.rpc.common.ConfigKeyPath;
 import com.impassive.rpc.config.BaseConfig;
 import com.impassive.rpc.exception.ExceptionCode;
 import com.impassive.rpc.exception.ImpConfigException;
@@ -11,6 +12,11 @@ import lombok.EqualsAndHashCode;
 public class ConsumerConfig<T> extends BaseConfig {
 
   private Class<T> classType;
+
+  @Override
+  public ConfigKeyPath keyPath() {
+    return ConfigKeyPath.consumer;
+  }
 
   @Override
   public void checkIllegal() {
