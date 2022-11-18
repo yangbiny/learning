@@ -5,18 +5,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.impassive</groupId>
-  <artifactId>imp-rpc</artifactId>
+  <artifactId>imp-learning</artifactId>
   <packaging>pom</packaging>
   <version>1.0.0</version>
-  <modules>
-    <module>imp-rpc-common</module>
-    <module>imp-rpc-config</module>
-    <module>imp-rpc-remoting</module>
-    <module>imp-rpc-core</module>
-    <module>imp-rpc-remote</module>
-  </modules>
 
-  <name>imp-rpc</name>
+
+  <name>imp-learning</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
