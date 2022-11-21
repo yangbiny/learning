@@ -11,12 +11,21 @@ data class Message(
 )
 
 val message = listOf(
+
     Message("Ma", "Hey!Where are you"),
+
     Message("Adam", "Every thing Hey!Where are you"),
+
     Message("Ma", "Please"),
 )
 
 fun main() {
+
+    var s1 = 1
+    val s2 = 2
+    var test = "test is ${s1 + s2}"
+    println(test)
+
     val key = message.groupBy(Message::sender)
         .maxByOrNull { (_, messages) -> messages.size }
         ?.key
