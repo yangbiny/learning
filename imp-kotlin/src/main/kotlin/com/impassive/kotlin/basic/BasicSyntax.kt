@@ -22,6 +22,15 @@ fun main() {
         ?.key
     println(key)
 
+    val names = message
+        .asSequence()
+        .filter { it.body.isNotBlank() && !it.isRead }
+        .map(Message::sender)
+        .distinct()
+        .sorted()
+        .toList()
+    println(names)
+
     val obj = RestaurantCustomer("test", "dish")
     obj.greet()
     obj.order()
