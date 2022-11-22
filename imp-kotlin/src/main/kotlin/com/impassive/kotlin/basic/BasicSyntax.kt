@@ -21,15 +21,12 @@ val message = listOf(
 
 fun main() {
 
-    var s1 = 1
-    val s2 = 2
-    var test = "test is ${s1 + s2}"
-    println(test)
-
-    val key = message.groupBy(Message::sender)
-        .maxByOrNull { (_, messages) -> messages.size }
-        ?.key
+    // 根据 sender 变量进行分组
+    val key = message.groupBy(Message::isRead)
+        .maxByOrNull { (_, value) -> value.size } // 根据 分组 后的 数量进行比较。前面 的 _ 表示的是 忽略了 对应的值，此处代表的是map的key
+        ?.key // 获取 对应的 key。 如果没有对应的 值，则返回null
     println(key)
+
 
     val names = message
         .asSequence()
