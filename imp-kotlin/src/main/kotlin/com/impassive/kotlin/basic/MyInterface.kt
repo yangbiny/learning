@@ -58,6 +58,13 @@ fun interface MyFunInterface {
 
 }
 
+// 扩展方法。如果 MyClass 对象为空。则返回null，否则 返回 toString()的值
+fun MyClass?.toString(): String {
+    if (this == null) return "null"
+
+    return toString()
+}
+
 fun main() {
     val testObj = MyClass()
     // 调用 foo 方法，并且传入 一个 MyFunInterface的实现
@@ -66,4 +73,5 @@ fun main() {
         true
     }.let { println(it) }
 
+    testObj.toString()
 }
