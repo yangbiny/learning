@@ -14,7 +14,7 @@ interface MyInterface {
         println("MyInterface bar")
     }
 
-    fun foo()
+    fun foo(func: MyFunInterface): Boolean
 }
 
 
@@ -41,8 +41,29 @@ class MyClass : MyInterface, MyInterface2 {
     /**
      * 实现接口的方法
      */
-    override fun foo() {
-        TODO("Not yet implemented")
+    override fun foo(func: MyFunInterface): Boolean {
+        println("foo")
+        return func.invoke()
     }
+
+
+}
+
+/**
+ * 函数式接口，一个 接口 只能有一个 抽象方法，可以多 0 个或者 多个 其他方法
+ */
+fun interface MyFunInterface {
+
+    fun invoke(): Boolean
+
+}
+
+fun main() {
+    val testObj = MyClass()
+    // 调用 foo 方法，并且传入 一个 MyFunInterface的实现
+    testObj.foo {
+        println("test")
+        true
+    }.let { println(it) }
 
 }
