@@ -12,8 +12,13 @@ class GenericsClass<T> {
     fun add(args: T): Boolean {
         return value.add(args)
     }
+}
 
-
+// vararg 是可变数量的参数
+// 范型方法
+fun <T> genericsMethod(args: Class<T>): T {
+    val constructor = args.getConstructor()
+    return constructor.newInstance()
 }
 
 fun main() {
@@ -23,5 +28,7 @@ fun main() {
 
     // 也可以这样指定 范型类型。后面构造 函数 处的范型 可写 可忽略
     val testClass2: GenericsClass<String> = GenericsClass();
+
+    genericsMethod(testClass.javaClass)
 
 }
