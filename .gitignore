@@ -2,3 +2,5 @@
 /**/target/
 /imp-kotlin/.gradle/
 /imp-kotlin/build/
+/**/META-INF/
+/**/*.class
