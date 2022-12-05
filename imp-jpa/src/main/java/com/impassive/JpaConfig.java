@@ -62,11 +62,9 @@ public class JpaConfig {
   ) throws SQLException {
     Map<String, DataSource> dataSourceMap = new HashMap<>();
     dataSourceMap.put("ds_01", dataSource);
-    Properties props = new Properties();
-    Properties properties = new Properties();
 
     StandalonePersistRepositoryConfiguration repository = new StandalonePersistRepositoryConfiguration(
-        "JDBC", properties);
+        "JDBC", new Properties());
 
     ModeConfiguration modeConfiguration = new ModeConfiguration("Standalone", repository);
     return ShardingSphereDataSourceFactory.createDataSource(
@@ -74,7 +72,7 @@ public class JpaConfig {
         modeConfiguration,
         dataSourceMap,
         ruleConfigurations,
-        props
+        new Properties()
     );
   }
 
