@@ -12,6 +12,6 @@ public interface TestTableRepository extends JpaRepository<TestShardTableDo, Lon
 
   TestShardTableDo findTestTableByExternalId(Long externalId);
 
-  TestShardTableDo findTestTableByExternalIdAndId(Long externalId, Long id);
+  TestShardTableDo findTestShardTableDoByExternalIdAndId(Long externalId, Long id);
 
 }

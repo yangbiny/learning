@@ -1,6 +1,9 @@
 package com.impassive;
 
 import com.google.common.collect.Lists;
+import com.impassive.entity.TestShardTableDo;
+import com.impassive.shard.CustomShardingAlgorithm;
+import com.impassive.shard.ShardEntity;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -14,16 +17,16 @@ import org.apache.shardingsphere.infra.config.rule.RuleConfiguration;
 import org.apache.shardingsphere.mode.repository.standalone.StandalonePersistRepositoryConfiguration;
 import org.apache.shardingsphere.sharding.api.config.ShardingRuleConfiguration;
 import org.apache.shardingsphere.sharding.api.config.rule.ShardingTableRuleConfiguration;
+import org.apache.shardingsphere.sharding.api.config.strategy.sharding.ComplexShardingStrategyConfiguration;
+import org.apache.shardingsphere.sharding.api.config.strategy.sharding.ShardingStrategyConfiguration;
 import org.apache.shardingsphere.sharding.api.config.strategy.sharding.StandardShardingStrategyConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.orm.jpa.JpaDialect;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.orm.jpa.vendor.HibernateJpaDialect;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.TransactionManager;
 
@@ -36,38 +39,46 @@ import org.springframework.transaction.TransactionManager;
 public class JpaConfig {
 
   private ShardingRuleConfiguration getOrderTableRuleConfiguration(
-      String databaseName,
-      String tableName
+      ShardEntity<?> shardEntity
   ) {
-    ShardingTableRuleConfiguration strc = new ShardingTableRuleConfiguration(tableName,
-        String.format("%s.%s_${[0,1]}", databaseName, tableName));
-
-    StandardShardingStrategyConfiguration tableShardingStrategy = new StandardShardingStrategyConfiguration(
-        "atlas_id",
-        "my_own"
-    );
-    strc.setTableShardingStrategy(tableShardingStrategy);
-
     ShardingRuleConfiguration shardingRuleConfiguration = new ShardingRuleConfiguration();
-    shardingRuleConfiguration.setTables(Lists.newArrayList(strc));
 
-    Properties props = new Properties();
-    props.setProperty("algorithm-expression", "test_${atlas_id % 2}");
-
-    HashMap<String, AlgorithmConfiguration> shardingAlgorithms = new HashMap<>();
-
+    // 定义 算法 相关
     // 这个是现有的，也可以自定义
-    AlgorithmConfiguration value = new AlgorithmConfiguration("INLINE",
-        props);
-    shardingAlgorithms.put("my_own", value);
-    shardingRuleConfiguration.setShardingAlgorithms(shardingAlgorithms);
+    Properties props = new Properties();
+    props.setProperty("algorithm-expression", "test_shard_${external_id % 2}");
+    AlgorithmConfiguration value = new AlgorithmConfiguration("INLINE", props);
+
+    // 这个 my_own 是自定义的算法的名称，下面使用的时候，需要使用这个名称
+    shardingRuleConfiguration.getShardingAlgorithms().put("my_own", value);
+
+    // 定义分表策略相关
+    ShardingTableRuleConfiguration strc = buildTableShard(shardEntity);
+    shardingRuleConfiguration.setTables(Lists.newArrayList(strc));
 
     return shardingRuleConfiguration;
   }
 
+  private ShardingTableRuleConfiguration buildTableShard(ShardEntity<?> shardEntity) {
+    // table 相关的配置
+    ShardingTableRuleConfiguration strc = new ShardingTableRuleConfiguration(
+        shardEntity.magicTableName(),
+        String.format("%s.%s_${[0,1]}", shardEntity.databaseName(), shardEntity.magicTableName())
+    );
+
+    ShardingStrategyConfiguration tableShardingStrategy = new StandardShardingStrategyConfiguration(
+        shardEntity.shardColumn(),
+        "my_own"
+    );
+
+    strc.setTableShardingStrategy(tableShardingStrategy);
+
+    return strc;
+  }
+
   @Bean
   public List<RuleConfiguration> ruleConfigurations() {
-    ShardingRuleConfiguration tableRule = getOrderTableRuleConfiguration("ds_01", "test");
+    ShardingRuleConfiguration tableRule = getOrderTableRuleConfiguration(new TestShardTableDo());
     return Lists.newArrayList(tableRule);
   }
 
@@ -79,8 +90,9 @@ public class JpaConfig {
     Map<String, DataSource> dataSourceMap = new HashMap<>();
     dataSourceMap.put("ds_01", dataSource);
     Properties props = new Properties();
+    Properties properties = new Properties();
     StandalonePersistRepositoryConfiguration repository = new StandalonePersistRepositoryConfiguration(
-        "JDBC", new Properties());
+        "JDBC", properties);
     ModeConfiguration modeConfiguration = new ModeConfiguration("Standalone",
         repository);
     return ShardingSphereDataSourceFactory.createDataSource(
@@ -95,10 +107,11 @@ public class JpaConfig {
   @Bean
   public DataSource dataSource() {
     DriverManagerDataSource dataSource = new DriverManagerDataSource();
-    dataSource.setDriverClassName("org.h2.Driver");
+    dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
     dataSource.setUrl(
-        "jdbc:h2:tcp://localhost/Users/impassivey/h2/test;USER=sa;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;AUTO_SERVER=TRUE");
-    dataSource.setUsername("sa");
+        "jdbc:mysql://10.200.68.3:3306/dev_buy?characterEncoding=utf-8&useUnicode=true&zeroDateTimeBehavior=convertToNull&useCursorFetch=true");
+    dataSource.setUsername("adm");
+    dataSource.setPassword("oK1@cM2]dB2!");
     return dataSource;
   }
 
@@ -109,11 +122,11 @@ public class JpaConfig {
     bean.setPackagesToScan("com.impassive.entity");
     bean.setDataSource(shardingSphereDataSource);
     HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
-    jpaVendorAdapter.setGenerateDdl(false);
+    jpaVendorAdapter.setGenerateDdl(true);
     jpaVendorAdapter.setShowSql(true);
     Properties jpaProperties = new Properties();
-    jpaProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
-    jpaProperties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
+    jpaProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL57Dialect");
+    //jpaProperties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
     bean.setJpaProperties(jpaProperties);
     bean.setJpaVendorAdapter(jpaVendorAdapter);
     return bean;

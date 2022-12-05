@@ -14,10 +14,14 @@ public class Main {
         JpaConfig.class);
 
     TestTableRepository tableRepository = context.getBean(TestTableRepository.class);
-    TestShardTableDo testShardTableDoByAtlasId = tableRepository.findTestTableByExternalIdAndId(
+    TestShardTableDo testShardTableDoByAtlasId = tableRepository.findTestShardTableDoByExternalIdAndId(
         16L,
         5L
     );
     System.out.println(testShardTableDoByAtlasId);
+
+    TestShardTableDo entity = new TestShardTableDo();
+    entity.setExternalId(2L);
+    tableRepository.save(entity);
   }
 }
