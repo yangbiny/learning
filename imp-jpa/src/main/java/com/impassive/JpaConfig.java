@@ -20,8 +20,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.orm.jpa.JpaDialect;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaDialect;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.TransactionManager;
 
@@ -93,11 +95,10 @@ public class JpaConfig {
   @Bean
   public DataSource dataSource() {
     DriverManagerDataSource dataSource = new DriverManagerDataSource();
-    dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+    dataSource.setDriverClassName("org.h2.Driver");
     dataSource.setUrl(
-        "jdbc:mysql://10.200.68.3:3306/dev_buy?characterEncoding=utf-8&useUnicode=true&zeroDateTimeBehavior=convertToNull&useCursorFetch=true");
-    dataSource.setUsername("adm");
-    dataSource.setPassword("oK1@cM2]dB2!");
+        "jdbc:h2:tcp://localhost/Users/impassivey/h2/test;USER=sa;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;AUTO_SERVER=TRUE");
+    dataSource.setUsername("sa");
     return dataSource;
   }
 
@@ -108,9 +109,10 @@ public class JpaConfig {
     bean.setPackagesToScan("com.impassive.entity");
     bean.setDataSource(shardingSphereDataSource);
     HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
-    jpaVendorAdapter.setGenerateDdl(true);
+    jpaVendorAdapter.setGenerateDdl(false);
     jpaVendorAdapter.setShowSql(true);
     Properties jpaProperties = new Properties();
+    jpaProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
     jpaProperties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
     bean.setJpaProperties(jpaProperties);
     bean.setJpaVendorAdapter(jpaVendorAdapter);

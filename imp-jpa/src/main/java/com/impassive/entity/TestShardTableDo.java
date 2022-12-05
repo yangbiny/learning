@@ -12,7 +12,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "test_shard")
-public class TestShardTable {
+public class TestShardTableDo {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

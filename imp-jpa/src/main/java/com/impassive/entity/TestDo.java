@@ -17,8 +17,8 @@ public class TestDo {
   @GeneratedValue
   private Long id;
 
-  @Column(nullable = false, name = "atlas_id")
-  private Long atlasId;
+  @Column(nullable = false, name = "external_id")
+  private Long externalId;
 
   @Column(nullable = false)
   private Integer status;
@@ -35,12 +35,12 @@ public class TestDo {
     this.id = id;
   }
 
-  public Long getAtlasId() {
-    return atlasId;
+  public Long getExternalId() {
+    return externalId;
   }
 
-  public void setAtlasId(Long atlasId) {
-    this.atlasId = atlasId;
+  public void setExternalId(Long atlasId) {
+    this.externalId = atlasId;
   }
 
   public Integer getStatus() {

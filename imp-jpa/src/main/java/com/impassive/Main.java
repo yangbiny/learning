@@ -1,6 +1,6 @@
 package com.impassive;
 
-import com.impassive.entity.TestShardTable;
+import com.impassive.entity.TestShardTableDo;
 import com.impassive.repository.TestTableRepository;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -14,10 +14,10 @@ public class Main {
         JpaConfig.class);
 
     TestTableRepository tableRepository = context.getBean(TestTableRepository.class);
-    TestShardTable testShardTableByAtlasId = tableRepository.findTestTableByExternalIdAndId(
+    TestShardTableDo testShardTableDoByAtlasId = tableRepository.findTestTableByExternalIdAndId(
         16L,
         5L
     );
-    System.out.println(testShardTableByAtlasId);
+    System.out.println(testShardTableDoByAtlasId);
   }
 }

@@ -1,17 +1,17 @@
 package com.impassive.repository;
 
-import com.impassive.entity.TestShardTable;
+import com.impassive.entity.TestShardTableDo;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 /**
  * @author impassive
  */
-@Component
-public interface TestTableRepository extends JpaRepository<TestShardTable, Long> {
+@Repository
+public interface TestTableRepository extends JpaRepository<TestShardTableDo, Long> {
 
-  TestShardTable findTestTableByExternalId(Long externalId);
+  TestShardTableDo findTestTableByExternalId(Long externalId);
 
-  TestShardTable findTestTableByExternalIdAndId(Long externalId, Long id);
+  TestShardTableDo findTestTableByExternalIdAndId(Long externalId, Long id);
 
 }
