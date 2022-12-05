@@ -1,6 +1,6 @@
 /.idea/
 /**/target/
-/imp-kotlin/.gradle/
-/imp-kotlin/build/
+/**/.gradle/
+/**/build/
 /**/META-INF/
 /**/*.class
