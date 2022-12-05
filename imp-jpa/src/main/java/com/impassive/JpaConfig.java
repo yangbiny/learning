@@ -1,9 +1,8 @@
 package com.impassive;
 
 import com.google.common.collect.Lists;
-import com.impassive.entity.TestShardTableDo;
-import com.impassive.shard.ShardEntity;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,52 +35,23 @@ import org.springframework.transaction.TransactionManager;
 @EnableJpaRepositories(basePackages = "com.impassive.repository")
 public class JpaConfig {
 
-  private ShardingRuleConfiguration getOrderTableRuleConfiguration(
-      ShardEntity shardEntity
-  ) {
-    ShardingRuleConfiguration shardingRuleConfiguration = new ShardingRuleConfiguration();
+  @Bean
+  public List<TableConfig> tableConfigs() {
+    List<TableConfig> tableConfigs = new ArrayList<>();
+    tableConfigs.add(new TableConfig(
+        "ds_01",
+        "test_shard",
+        "external_id",
+        2
+    ));
 
-    // 定义 算法 相关
-    // 这个是现有的，也可以自定义
-    Properties props = new Properties();
-    props.setProperty(shardEntity.magicTableName(), shardEntity.shardCnt() + "");
-
-    AlgorithmConfiguration value = new AlgorithmConfiguration("impassive", props);
-
-    // 这个 my_own 是自定义的算法的名称，下面使用的时候，需要使用这个名称
-    shardingRuleConfiguration.getShardingAlgorithms().put("my_own", value);
-
-    // 定义分表策略相关
-    ShardingTableRuleConfiguration strc = buildTableShard(shardEntity);
-    shardingRuleConfiguration.setTables(Lists.newArrayList(strc));
-
-    return shardingRuleConfiguration;
+    return tableConfigs;
   }
 
-  private ShardingTableRuleConfiguration buildTableShard(ShardEntity shardEntity) {
-    // table 相关的配置
-    ShardingTableRuleConfiguration strc = new ShardingTableRuleConfiguration(
-        shardEntity.magicTableName(),
-        String.format(
-            "%s.%s_${[0,%s]}",
-            shardEntity.databaseName(),
-            shardEntity.magicTableName(),
-            shardEntity.shardCnt() - 1)
-    );
-
-    ShardingStrategyConfiguration tableShardingStrategy = new StandardShardingStrategyConfiguration(
-        shardEntity.shardColumn(),
-        "my_own"
-    );
-
-    strc.setTableShardingStrategy(tableShardingStrategy);
-
-    return strc;
-  }
 
   @Bean
-  public List<RuleConfiguration> ruleConfigurations() {
-    ShardingRuleConfiguration tableRule = getOrderTableRuleConfiguration(new TestShardTableDo());
+  public List<RuleConfiguration> ruleConfigurations(List<TableConfig> tableConfigs) {
+    ShardingRuleConfiguration tableRule = getOrderTableRuleConfiguration(tableConfigs);
     return Lists.newArrayList(tableRule);
   }
 
@@ -153,6 +123,52 @@ public class JpaConfig {
     JpaTransactionManager jpaTransactionManager = new JpaTransactionManager();
     jpaTransactionManager.setEntityManagerFactory(entityManagerFactoryBean.getObject());
     return jpaTransactionManager;
+  }
+
+
+  /* ----------------------- */
+
+  private ShardingRuleConfiguration getOrderTableRuleConfiguration(
+      List<TableConfig> tableConfigs
+  ) {
+    ShardingRuleConfiguration shardingRuleConfiguration = new ShardingRuleConfiguration();
+
+    // 定义 算法 相关
+    // 这个是现有的，也可以自定义
+    Properties props = new Properties();
+    List<ShardingTableRuleConfiguration> strcList = new ArrayList<>();
+    for (TableConfig tableConfig : tableConfigs) {
+      props.setProperty(tableConfig.magicTableName(), tableConfig.shardCnt() + "");
+      strcList.add(buildTableShard(tableConfig));
+    }
+    AlgorithmConfiguration value = new AlgorithmConfiguration("impassive", props);
+    // 这个 my_own 是自定义的算法的名称，下面使用的时候，需要使用这个名称
+    shardingRuleConfiguration.getShardingAlgorithms().put("my_own", value);
+    // 定义分表策略相关
+    shardingRuleConfiguration.setTables(strcList);
+
+    return shardingRuleConfiguration;
+  }
+
+  private ShardingTableRuleConfiguration buildTableShard(TableConfig tableConfig) {
+    // table 相关的配置
+    ShardingTableRuleConfiguration strc = new ShardingTableRuleConfiguration(
+        tableConfig.magicTableName(),
+        String.format(
+            "%s.%s_${[0,%s]}",
+            tableConfig.database(),
+            tableConfig.magicTableName(),
+            tableConfig.shardCnt() - 1)
+    );
+
+    ShardingStrategyConfiguration tableShardingStrategy = new StandardShardingStrategyConfiguration(
+        tableConfig.shardColumn(),
+        "my_own"
+    );
+
+    strc.setTableShardingStrategy(tableShardingStrategy);
+
+    return strc;
   }
 
 }
