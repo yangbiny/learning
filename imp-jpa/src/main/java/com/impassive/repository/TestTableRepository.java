@@ -10,8 +10,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TestTableRepository extends JpaRepository<TestShardTableDo, Long> {
 
-  TestShardTableDo findTestTableByExternalId(Long externalId);
-
   TestShardTableDo findTestShardTableDoByExternalIdAndId(Long externalId, Long id);
 
 }

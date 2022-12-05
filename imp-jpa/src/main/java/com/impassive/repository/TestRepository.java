@@ -15,15 +15,15 @@ import org.springframework.stereotype.Repository;
 public interface TestRepository extends JpaRepository<TestDo, Long> {
 
   @Query(value = "from TestDo where id > ?1")
-  List<TestDo> atlasTagExtra(Long minId, Pageable pageable);
+  List<TestDo> testDo(Long minId, Pageable pageable);
 
   @Query(value = "from TestDo ")
-  List<TestDo> atlasTagOrderByIdDesc(Sort sort);
+  List<TestDo> testDoOrderBy(Sort sort);
 
   /**
    * 使用原生SQL进行查询
    */
   @Query(nativeQuery = true, value = "select * from test_do where id in (?1)")
-  List<TestDo> queryAtlasTagExtraByIdInOrderBy(List<Long> ids);
+  List<TestDo> queryTestDoByIdInOrderBy(List<Long> ids);
 
 }

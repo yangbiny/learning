@@ -2,7 +2,6 @@ package com.impassive;
 
 import com.google.common.collect.Lists;
 import com.impassive.entity.TestShardTableDo;
-import com.impassive.shard.CustomShardingAlgorithm;
 import com.impassive.shard.ShardEntity;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -17,7 +16,6 @@ import org.apache.shardingsphere.infra.config.rule.RuleConfiguration;
 import org.apache.shardingsphere.mode.repository.standalone.StandalonePersistRepositoryConfiguration;
 import org.apache.shardingsphere.sharding.api.config.ShardingRuleConfiguration;
 import org.apache.shardingsphere.sharding.api.config.rule.ShardingTableRuleConfiguration;
-import org.apache.shardingsphere.sharding.api.config.strategy.sharding.ComplexShardingStrategyConfiguration;
 import org.apache.shardingsphere.sharding.api.config.strategy.sharding.ShardingStrategyConfiguration;
 import org.apache.shardingsphere.sharding.api.config.strategy.sharding.StandardShardingStrategyConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -39,15 +37,16 @@ import org.springframework.transaction.TransactionManager;
 public class JpaConfig {
 
   private ShardingRuleConfiguration getOrderTableRuleConfiguration(
-      ShardEntity<?> shardEntity
+      ShardEntity shardEntity
   ) {
     ShardingRuleConfiguration shardingRuleConfiguration = new ShardingRuleConfiguration();
 
     // 定义 算法 相关
     // 这个是现有的，也可以自定义
     Properties props = new Properties();
-    props.setProperty("algorithm-expression", "test_shard_${external_id % 2}");
-    AlgorithmConfiguration value = new AlgorithmConfiguration("INLINE", props);
+    props.setProperty(shardEntity.magicTableName(), shardEntity.shardCnt() + "");
+
+    AlgorithmConfiguration value = new AlgorithmConfiguration("impassive", props);
 
     // 这个 my_own 是自定义的算法的名称，下面使用的时候，需要使用这个名称
     shardingRuleConfiguration.getShardingAlgorithms().put("my_own", value);
@@ -59,11 +58,15 @@ public class JpaConfig {
     return shardingRuleConfiguration;
   }
 
-  private ShardingTableRuleConfiguration buildTableShard(ShardEntity<?> shardEntity) {
+  private ShardingTableRuleConfiguration buildTableShard(ShardEntity shardEntity) {
     // table 相关的配置
     ShardingTableRuleConfiguration strc = new ShardingTableRuleConfiguration(
         shardEntity.magicTableName(),
-        String.format("%s.%s_${[0,1]}", shardEntity.databaseName(), shardEntity.magicTableName())
+        String.format(
+            "%s.%s_${[0,%s]}",
+            shardEntity.databaseName(),
+            shardEntity.magicTableName(),
+            shardEntity.shardCnt() - 1)
     );
 
     ShardingStrategyConfiguration tableShardingStrategy = new StandardShardingStrategyConfiguration(
@@ -91,10 +94,11 @@ public class JpaConfig {
     dataSourceMap.put("ds_01", dataSource);
     Properties props = new Properties();
     Properties properties = new Properties();
+
     StandalonePersistRepositoryConfiguration repository = new StandalonePersistRepositoryConfiguration(
         "JDBC", properties);
-    ModeConfiguration modeConfiguration = new ModeConfiguration("Standalone",
-        repository);
+
+    ModeConfiguration modeConfiguration = new ModeConfiguration("Standalone", repository);
     return ShardingSphereDataSourceFactory.createDataSource(
         "ds_01",
         modeConfiguration,

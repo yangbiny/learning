@@ -13,7 +13,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "test_shard")
-public class TestShardTableDo implements ShardEntity<Long> {
+public class TestShardTableDo implements ShardEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -57,6 +57,11 @@ public class TestShardTableDo implements ShardEntity<Long> {
   @Override
   public String shardColumn() {
     return "external_id";
+  }
+
+  @Override
+  public int shardCnt() {
+    return 2;
   }
 
   @Override
