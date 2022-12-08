@@ -1,9 +1,11 @@
 package com.impassive.kotlin.cache.basic
 
+import java.io.Closeable
+
 /**
  * @author impassive
  */
-interface CustomCache<K, V> {
+interface CustomCache<K, V> : Closeable {
 
     fun get(key: K): V
 
