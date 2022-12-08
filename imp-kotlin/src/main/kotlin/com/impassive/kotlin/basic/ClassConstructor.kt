@@ -57,6 +57,8 @@ fun main() {
     // 此时 由于 他的 值 为null，所以不会打印
     first.lastName?.let { println(it) }
 
+
+
     val classConstructor = ClassConstructor("testName", "la")
 
     // 此时 不为null，所以会打印
