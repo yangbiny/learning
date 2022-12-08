@@ -12,7 +12,9 @@ class CustomRedisCache<K, V>(
     private val expireAfterWrite: Duration
 ) : CustomCache<K, V> {
 
-    private val sync: RedisCommands<K, V> = CustomLettuceConn(redisConfig).conn.sync()
+    private val customLettuceConn = CustomLettuceConn(redisConfig)
+
+    private val sync: RedisCommands<K, V> = customLettuceConn.conn.sync()
 
 
     override fun get(key: K): V {
@@ -29,6 +31,10 @@ class CustomRedisCache<K, V>(
         key?.let {
             sync.del(key)
         }
+    }
+
+    override fun close() {
+        customLettuceConn.close()
     }
 
 

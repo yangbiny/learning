@@ -8,6 +8,7 @@ import io.lettuce.core.RedisURI
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import java.time.LocalDate
 
 /**
  * @author impassive
@@ -18,24 +19,34 @@ internal class CustomBuilderTest {
 
     @BeforeEach
     fun setUp() {
-        val connConfig = CustomLettuceConnConfig<Long, Item>(
+        val connConfig = CustomLettuceConnConfig(
             client = RedisClient.create(),
-            masterUri = RedisURI.Builder.redis("").build(),
-            codec = JsonRedisCodec()
+            masterUri = RedisURI.Builder.redis("10.200.68.3", 6379).build(),
+            codec = JsonRedisCodec(
+                "prefix", 6, Long::class.java, Item::class.java
+            )
         )
 
         redisCache = CustomBuilder<Long, Item>(Duration.ofMinutes(15))
+            .cfg(connConfig)
             .build()
 
-        println(redisCache)
     }
 
     @Test
     internal fun test() {
-        redisCache?.get(1L)
+        val item = redisCache?.get(1L)
+        println(item)
     }
 
-    class Item {
+    @Test
+    internal fun testSave() {
+        redisCache?.put(1L, Item("test"))
+    }
+
+    class Item(
+        val key: String
+    ) {
 
     }
 }
