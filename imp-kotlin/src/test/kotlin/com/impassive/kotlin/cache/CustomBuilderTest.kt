@@ -5,6 +5,7 @@ import com.impassive.kotlin.cache.redis.CustomLettuceConnConfig
 import com.impassive.kotlin.cache.redis.JsonRedisCodec
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
+import lombok.Data
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
@@ -41,12 +42,14 @@ internal class CustomBuilderTest {
 
     @Test
     internal fun testSave() {
-        redisCache?.put(1L, Item("test"))
+        val value = Item()
+        redisCache?.put(1L, value)
     }
 
-    class Item(
-        val key: String
-    ) {
+    @Data
+    class Item {
+
+        var key: String = ""
 
     }
 }

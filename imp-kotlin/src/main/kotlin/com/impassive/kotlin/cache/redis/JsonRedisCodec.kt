@@ -26,7 +26,7 @@ class JsonRedisCodec<K, V>(
             if (remaining == 0) {
                 return EMPTY
             }
-            val byteArray = byteArrayOf()
+            val byteArray = ByteArray(remaining)
             bytes.get(byteArray)
             byteArray
         }
