@@ -1,11 +1,9 @@
 package com.impassive.shard;
 
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.shardingsphere.sharding.api.sharding.standard.PreciseShardingValue;
 import org.apache.shardingsphere.sharding.api.sharding.standard.RangeShardingValue;
 import org.apache.shardingsphere.sharding.api.sharding.standard.StandardShardingAlgorithm;
@@ -63,6 +61,11 @@ public class CustomShardingAlgorithm<T extends Long> implements
     }
 
     String prefix = shardingValue.getDataNodeInfo().getPrefix();
+
+    if (shardCnt == 1) {
+      return prefix;
+    }
+
     return String.format(prefix + shardValue % shardCnt + "");
   }
 

@@ -10,7 +10,7 @@ import javax.persistence.Table;
  * @author impassive
  */
 @Entity
-@Table(name = "test_do")
+@Table(name = "test_table_tag_x")
 public class TestDo {
 
   @Id

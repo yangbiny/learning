@@ -39,11 +39,18 @@ public class JpaConfig {
   public List<TableConfig> tableConfigs() {
     List<TableConfig> tableConfigs = new ArrayList<>();
     tableConfigs.add(new TableConfig(
-        "ds_01",
+        "buyDataSource",
         "test_shard",
         "external_id",
         2
     ));
+
+/*    tableConfigs.add(new TableConfig(
+        "tagDataSource",
+        "test_table_tag",
+        "external_id",
+        1
+    ));*/
 
     return tableConfigs;
   }
@@ -57,18 +64,27 @@ public class JpaConfig {
 
   @Bean
   public DataSource shardingSphereDataSource(
-      DataSource dataSource,
+      DataSource tagDataSource,
+      DataSource buyDataSource,
       List<RuleConfiguration> ruleConfigurations
   ) throws SQLException {
     Map<String, DataSource> dataSourceMap = new HashMap<>();
-    dataSourceMap.put("ds_01", dataSource);
+    dataSourceMap.put("tagDataSource", tagDataSource);
+    dataSourceMap.put("buyDataSource", buyDataSource);
 
+    /*Properties props = new Properties();
+    props.setProperty("provider", "H2");
+    props.setProperty("jdbc_url",
+        "jdbc:h2:tcp://localhost/~/tmp/h2/config;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false;");*/
+
+    // 什么都不给的 情况下，默认是 h2 的 memory 模式
+    // JDBC 只 支持 H2
     StandalonePersistRepositoryConfiguration repository = new StandalonePersistRepositoryConfiguration(
         "JDBC", new Properties());
 
     ModeConfiguration modeConfiguration = new ModeConfiguration("Standalone", repository);
     return ShardingSphereDataSourceFactory.createDataSource(
-        "ds_01",
+        "shardingSphere-datasource",
         modeConfiguration,
         dataSourceMap,
         ruleConfigurations,
@@ -77,7 +93,18 @@ public class JpaConfig {
   }
 
   @Bean
-  public DataSource dataSource() {
+  public DataSource tagDataSource() {
+    DriverManagerDataSource dataSource = new DriverManagerDataSource();
+    dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+    dataSource.setUrl(
+        "jdbc:mysql://10.200.68.3:3306/dev_tag?characterEncoding=utf-8&useUnicode=true&zeroDateTimeBehavior=convertToNull&useCursorFetch=true");
+    dataSource.setUsername("adm");
+    dataSource.setPassword("oK1@cM2]dB2!");
+    return dataSource;
+  }
+
+  @Bean
+  public DataSource buyDataSource() {
     DriverManagerDataSource dataSource = new DriverManagerDataSource();
     dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
     dataSource.setUrl(
@@ -94,7 +121,7 @@ public class JpaConfig {
     bean.setPackagesToScan("com.impassive.entity");
     bean.setDataSource(shardingSphereDataSource);
     HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
-    jpaVendorAdapter.setGenerateDdl(true);
+    jpaVendorAdapter.setGenerateDdl(false);
     jpaVendorAdapter.setShowSql(true);
     Properties jpaProperties = new Properties();
     jpaProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL57Dialect");
@@ -150,13 +177,20 @@ public class JpaConfig {
 
   private ShardingTableRuleConfiguration buildTableShard(TableConfig tableConfig) {
     // table 相关的配置
+    String actualDataNode;
+    if (tableConfig.shardCnt() > 1) {
+      actualDataNode = String.format(
+          "%s.%s_${[0,%s]}",
+          tableConfig.database(),
+          tableConfig.magicTableName(),
+          tableConfig.shardCnt() - 1);
+    } else {
+      actualDataNode = String.format("%s.%s", tableConfig.database(), tableConfig.magicTableName());
+    }
+
     ShardingTableRuleConfiguration strc = new ShardingTableRuleConfiguration(
         tableConfig.magicTableName(),
-        String.format(
-            "%s.%s_${[0,%s]}",
-            tableConfig.database(),
-            tableConfig.magicTableName(),
-            tableConfig.shardCnt() - 1)
+        actualDataNode
     );
 
     ShardingStrategyConfiguration tableShardingStrategy = new StandardShardingStrategyConfiguration(

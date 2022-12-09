@@ -21,6 +21,13 @@ public class Main {
     List<TestDo> testDos = testRepository.queryTestDoByIdInOrderBy(Lists.newArrayList(1L, 2L));
     System.out.println(testDos);
 
+    TestDo entity1 = new TestDo();
+    entity1.setStatus(1);
+    entity1.setExternalId(1L);
+    entity1.setCreateAt(System.currentTimeMillis());
+    TestDo save = testRepository.save(entity1);
+    System.out.println(save);
+
     TestTableRepository tableRepository = context.getBean(TestTableRepository.class);
     TestShardTableDo testShardTableDoByAtlasId = tableRepository.findTestShardTableDoByExternalIdAndId(
         16L,
