@@ -4,7 +4,6 @@ import com.impassive.kotlin.tools.JsonTools
 import io.lettuce.core.codec.RedisCodec
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
-import java.util.Objects
 
 /**
  * @author impassive
@@ -50,13 +49,13 @@ class JsonRedisCodec<K, V>(
     }
 
     override fun encodeValue(value: V): ByteBuffer {
-        val jsonStr = JsonTools.toJson(value);
+        val jsonStr = JsonTools.toJson(value)
         return ByteBuffer.wrap(jsonStr.toByteArray(StandardCharsets.UTF_8))
     }
 
     override fun encodeKey(key: K): ByteBuffer {
         val keyStr = JsonTools.toJson(key)
-        val finalStr = keyPrefix + keyStr;
+        val finalStr = keyPrefix + keyStr
         return ByteBuffer.wrap(finalStr.toByteArray(StandardCharsets.UTF_8))
     }
 }
