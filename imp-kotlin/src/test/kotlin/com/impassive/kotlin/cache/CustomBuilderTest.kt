@@ -1,6 +1,7 @@
 package com.impassive.kotlin.cache
 
 import com.impassive.kotlin.cache.basic.CustomCache
+import com.impassive.kotlin.cache.decoration.FallbackDecoration
 import com.impassive.kotlin.cache.redis.CustomLettuceConnConfig
 import com.impassive.kotlin.cache.redis.JsonRedisCodec
 import io.lettuce.core.RedisClient
@@ -44,6 +45,19 @@ internal class CustomBuilderTest {
     internal fun testSave() {
         val value = Item()
         redisCache?.put(1L, value)
+    }
+
+    @Test
+    internal fun testDecoration() {
+        var success = true
+
+        var v2 = FallbackDecoration(null)
+        val fallbackDecoration = FallbackDecoration(v2)
+        fallbackDecoration.failed()
+        println(v2.cnt)
+        println(fallbackDecoration.value?.cnt)
+
+
     }
 
     @Data
