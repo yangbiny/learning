@@ -1,1 +1,0 @@
-rootProject.name = "imp-jpa-to-sql"
