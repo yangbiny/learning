@@ -192,7 +192,6 @@ public class JpaConfig {
         tableConfig.magicTableName(),
         actualDataNode
     );
-
     ShardingStrategyConfiguration tableShardingStrategy = new StandardShardingStrategyConfiguration(
         tableConfig.shardColumn(),
         "my_own"

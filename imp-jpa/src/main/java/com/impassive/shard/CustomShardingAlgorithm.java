@@ -1,12 +1,14 @@
 package com.impassive.shard;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Properties;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shardingsphere.sharding.api.sharding.standard.PreciseShardingValue;
 import org.apache.shardingsphere.sharding.api.sharding.standard.RangeShardingValue;
 import org.apache.shardingsphere.sharding.api.sharding.standard.StandardShardingAlgorithm;
+import org.assertj.core.util.Lists;
 
 /**
  * @author impassive
@@ -63,7 +65,7 @@ public class CustomShardingAlgorithm<T extends Long> implements
     String prefix = shardingValue.getDataNodeInfo().getPrefix();
 
     if (shardCnt == 1) {
-      return prefix;
+      return shardingValue.getLogicTableName();
     }
 
     return String.format(prefix + shardValue % shardCnt + "");
@@ -72,6 +74,21 @@ public class CustomShardingAlgorithm<T extends Long> implements
   @Override
   public Collection<String> doSharding(Collection<String> availableTargetNames,
       RangeShardingValue<T> shardingValue) {
-    return null;
+    Long mindId = shardingValue.getValueRange().lowerEndpoint();
+    String logicTableName = shardingValue.getLogicTableName();
+    Object tmpCnt = properties.get(logicTableName);
+    if (tmpCnt == null || !StringUtils.isNumeric(tmpCnt.toString())) {
+      throw new RuntimeException("无法分片 : " + logicTableName);
+    }
+    int shardCnt = Integer.parseInt(tmpCnt.toString());
+    if (shardCnt <= 0) {
+      throw new RuntimeException("无法进行分片");
+    }
+    if (shardCnt == 1) {
+      return Lists.newArrayList(logicTableName);
+    }
+    String prefix = shardingValue.getDataNodeInfo().getPrefix();
+    String result = String.format(prefix + mindId % shardCnt + "");
+    return Lists.newArrayList(result);
   }
 }

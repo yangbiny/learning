@@ -29,10 +29,15 @@ public class Main {
     System.out.println(save);
 
     TestTableRepository tableRepository = context.getBean(TestTableRepository.class);
+
     TestShardTableDo testShardTableDoByAtlasId = tableRepository.findTestShardTableDoByExternalIdAndId(
         16L,
         5L
     );
+
+    List<TestShardTableDo> testShardTableForRange = tableRepository.findTestShardTableForRange(1L);
+    System.out.println(testShardTableForRange);
+
     System.out.println(testShardTableDoByAtlasId);
 
     TestShardTableDo entity = new TestShardTableDo();
