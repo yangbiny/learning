@@ -5,7 +5,8 @@
  */
 
 plugins {
-    id 'com.impassive.java-conventions'
+    id "application"
+    id 'io.freefair.lombok' version '6.5.1' apply false
 }
 
 dependencies {
