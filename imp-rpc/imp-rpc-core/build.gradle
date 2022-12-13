@@ -14,8 +14,8 @@ group 'com.impassive'
 version '1.0-SNAPSHOT'
 
 dependencies {
-    implementation project(':imp-rpc-common')
-    implementation project(':imp-rpc-remote')
+    implementation project(':imp-rpc:imp-rpc-common')
+    implementation project(':imp-rpc:imp-rpc-remote')
     implementation 'org.apache.zookeeper:zookeeper:3.7.0'
     implementation 'org.apache.curator:curator-client:5.3.0'
     implementation 'org.apache.curator:curator-framework:5.3.0'

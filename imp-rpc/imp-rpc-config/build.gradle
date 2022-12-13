@@ -2,6 +2,7 @@ plugins {
     id "application"
     id 'io.freefair.lombok' version '6.5.1' apply false
     id 'java'
+    id 'java-library'
 }
 
 group 'com.impassive'
@@ -12,11 +13,10 @@ repositories {
 }
 
 dependencies {
-    implementation project(':imp-rpc-common')
-    implementation project(':imp-rpc-core')
+    implementation project(':imp-rpc:imp-rpc-common')
+    implementation project(':imp-rpc:imp-rpc-core')
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 
 description = 'imp-rpc-config'

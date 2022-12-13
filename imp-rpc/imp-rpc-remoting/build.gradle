@@ -14,7 +14,7 @@ group 'com.impassive'
 version '1.0-SNAPSHOT'
 
 dependencies {
-    implementation project(':imp-rpc-common')
+    implementation project(':imp-rpc:imp-rpc-common')
     testImplementation 'junit:junit:4.13.2'
 }
 
