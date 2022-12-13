@@ -10,6 +10,6 @@
 
 rootProject.name = 'imp-learning'
 
-include(':imp-jpa')
-include(':imp-kotlin')
-include(':imp-rpc')
+include('imp-jpa')
+include('imp-kotlin')
+include('imp-rpc')

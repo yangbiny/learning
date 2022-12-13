@@ -1,8 +1,3 @@
-
-wrapper() {
-    gradleVersion = '7.5.1'
-}
-
 tasks.register("showProjects") {
     doLast {
         println("javaProjects:$javaProjects")
@@ -17,11 +12,7 @@ ext {
     /*2. projects*/
 
     javaLib = [
-            project(":imp-rpc-common"),
-            project(":imp-rpc-config"),
-            project(":imp-rpc-core"),
-            project(":imp-rpc-remote"),
-            project(":imp-rpc-remoting")
+
     ]
 
     javaProjects = []

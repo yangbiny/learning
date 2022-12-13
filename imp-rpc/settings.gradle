@@ -10,8 +10,8 @@
 
 rootProject.name = 'imp-rpc'
 
-include(':imp-rpc-remote')
-include(':imp-rpc-remoting')
-include(':imp-rpc-core')
-include(':imp-rpc-config')
-include(':imp-rpc-common')
+include('imp-rpc-remote')
+include('imp-rpc-remoting')
+include('imp-rpc-core')
+include('imp-rpc-config')
+include('imp-rpc-common')
