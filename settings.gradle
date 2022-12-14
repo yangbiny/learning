@@ -17,3 +17,5 @@ include('imp-rpc:imp-rpc-remoting')
 include('imp-rpc:imp-rpc-core')
 include('imp-rpc:imp-rpc-config')
 include('imp-rpc:imp-rpc-common')
+include('imp-third-payment')
+

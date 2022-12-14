@@ -5,6 +5,7 @@
 /**/META-INF/
 /**/*.class
 /**/*.iml
+/**/*/application-ali.properties
 
 .gradle
 build/
