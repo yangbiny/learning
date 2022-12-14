@@ -1,6 +1,8 @@
 package com.impassive.kotlin.basic
 
 import com.impassive.kotlin.basic.Slf4j.Companion.log
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 
 /**
@@ -18,7 +20,18 @@ class LearnException {
 
 }
 
+class LoggerTester {
+
+    companion object {
+        val log: Logger = LoggerFactory.getLogger(LoggerTester::class.java)
+    }
+
+
+
+}
+
 fun main() {
+    LoggerTester.log.error("error")
     val entity = LearnException()
     entity.test()
 }
