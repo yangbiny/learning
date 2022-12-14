@@ -8,7 +8,6 @@ import com.impassive.rpc.exception.ServiceException;
 import com.impassive.rpc.utils.AddressTools;
 import com.impassive.rpc.utils.CollectionTools;
 import com.impassive.rpc.utils.JsonTools;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -76,7 +75,7 @@ public class ZookeeperRegistry implements Registry {
   }
 
   private CuratorFramework initClient(ImpUrl impUrl) {
-    URLRegisterAddress registerAddress = impUrl.getRegisterAddress();
+    URLRegisterAddress registerAddress = null;
     try {
       String address = String.format("%s:%s", registerAddress.address(),
           registerAddress.port());
@@ -92,9 +91,7 @@ public class ZookeeperRegistry implements Registry {
 
   private String buildRegisterPath(ImpUrl impUrl) {
     return String.format("%s/%s/%s/provider",
-        impUrl.getRegisterAddress().path(),
-        impUrl.getApplication().applicationName(),
-        impUrl.getClassType().getSimpleName());
+        "", "", "");
   }
 
 }
