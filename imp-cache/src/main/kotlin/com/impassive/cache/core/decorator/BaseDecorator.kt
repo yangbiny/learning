@@ -13,8 +13,8 @@ sealed class BaseDecorator<K, V>(
     private fun checkCollectionNotNull(k: Collection<K>): Collection<K> {
         ApiParamValidateToos.checkNotNull(k, "key can not be null")
         k.run {
-            for (k in this) {
-                ApiParamValidateToos.checkNotNull(k, "key can not be null")
+            for (item in this) {
+                ApiParamValidateToos.checkNotNull(item, "key can not be null")
             }
         }
         return k
