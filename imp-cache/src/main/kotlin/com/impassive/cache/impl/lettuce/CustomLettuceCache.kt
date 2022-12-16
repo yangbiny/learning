@@ -34,9 +34,7 @@ class CustomLettuceCache<K, V>(
     }
 
     override fun multiGet(keys: Collection<K>): Map<K, V> {
-        val array = keys.stream().toArray()
-        @Suppress("UNCHECKED_CAST")
-        val ks: Array<K?> = array as Array<K?>
+        val ks: Array<K?> = collectionsToArray(keys)
         return redisCommands.mget(*ks)
             .stream()
             .filter { item -> item.hasValue() }
@@ -44,6 +42,17 @@ class CustomLettuceCache<K, V>(
             .associate {
                 Pair(it.key, it.value)
             }
+    }
+
+    override fun multiRm(keys: Collection<K>) {
+        val keyArr = collectionsToArray(keys)
+        redisCommands.del(*keyArr)
+    }
+
+    private fun collectionsToArray(keys: Collection<K>): Array<K?> {
+        val array = keys.stream().toArray()
+        @Suppress("UNCHECKED_CAST")
+        return array as Array<K?>
     }
 
     override fun close() {
