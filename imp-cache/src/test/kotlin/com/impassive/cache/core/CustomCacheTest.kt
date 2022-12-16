@@ -6,6 +6,7 @@ import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import java.util.function.Function
 
 /**
  * @author impassive
@@ -28,7 +29,6 @@ class CustomCacheTest {
         ).build()
 
 
-
         val valueMap = mapOf(Pair("123", "123"), Pair("456", "456"), Pair("789", "789"))
 
         build.multiPut(valueMap)
@@ -39,20 +39,13 @@ class CustomCacheTest {
 
         build.multiRm(keys)
 
-        val load = build.load("101", this::func)
+        val load = build.load("101") { item -> valueMap[item]!! }
         println(load)
 
         keys.add("102")
-        val multiLoad = build.multiLoad(keys, this::func, null)
+        val multiLoad = build.multiLoad(keys, { item -> item.associateWith { it } }, null)
         println(multiLoad)
 
     }
 
-    private fun func(key: String): String {
-        return key
-    }
-
-    private fun func(key: Collection<String>): Map<String, String> {
-        return key.associateWith { it }
-    }
 }
