@@ -6,7 +6,6 @@ import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import java.util.function.Function
 
 /**
  * @author impassive
