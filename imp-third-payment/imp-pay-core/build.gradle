@@ -1,0 +1,26 @@
+plugins {
+    id 'java'
+    id 'io.freefair.lombok' version '6.5.1' apply true
+}
+
+group 'com.impassive'
+version '1.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.projectlombok:lombok:1.18.24'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+
+    implementation project(":imp-third-payment:imp-pay-core")
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+
+}
+
+test {
+    useJUnitPlatform()
+}
