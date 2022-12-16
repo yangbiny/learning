@@ -31,9 +31,26 @@ class CustomCacheTest {
 
         build.multiPut(valueMap)
 
-        val keys = listOf("123", "456")
+        val keys = mutableListOf("123", "456", "101")
         val multiGet = build.multiGet(keys)
         println(multiGet)
 
+        build.multiRm(keys)
+
+        val load = build.load("101", this::func)
+        println(load)
+
+        keys.add("102")
+        val multiLoad = build.multiLoad(keys, this::func, null)
+        println(multiLoad)
+
+    }
+
+    private fun func(key: String): String {
+        return key
+    }
+
+    private fun func(key: Collection<String>): Map<String, String> {
+        return key.associateWith { it }
     }
 }

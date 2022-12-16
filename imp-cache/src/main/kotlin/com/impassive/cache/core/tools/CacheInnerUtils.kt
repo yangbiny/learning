@@ -31,7 +31,7 @@ object CacheInnerUtils {
             return emptySet()
         }
         return keys?.run {
-            this.stream().filter { item -> hitMap?.contains(item) ?: false }.toList().toSet()
+            this.stream().filter { item -> !(hitMap?.contains(item) ?: false) }.toList().toSet()
         } ?: emptySet()
     }
 

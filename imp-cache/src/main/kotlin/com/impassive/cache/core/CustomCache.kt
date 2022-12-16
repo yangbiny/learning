@@ -25,7 +25,7 @@ interface CustomCache<K, V> : Closeable {
 
     fun load(k: K, loader: Function<K, V>, fallback: Function<K, V>?): V? {
         try {
-            var result: V?
+            val result: V?
             try {
                 result = this.get(k)
             } catch (e: Exception) {
