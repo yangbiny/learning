@@ -20,13 +20,20 @@ class CustomCacheTest {
                 client = RedisClient.create(),
                 masterUri = RedisURI.Builder.redis("10.200.68.3", 6379).build(),
                 codec = JsonRedisCodec(
-                    "prefix", 6, String::class.java, String::class.java
+                    keyPrefix = "prefix_",
+                    keyClass = String::class.java,
+                    valueClass = String::class.java
                 )
             ),
         ).build()
 
+        val valueMap = mapOf(Pair("123", "123"), Pair("456", "456"), Pair("789", "789"))
+
+        build.multiPut(valueMap)
+
         val keys = listOf("123", "456")
-        build.multiGet(keys)
+        val multiGet = build.multiGet(keys)
+        println(multiGet)
 
     }
 }

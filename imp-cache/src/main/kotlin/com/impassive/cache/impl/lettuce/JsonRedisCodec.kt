@@ -7,7 +7,7 @@ import java.nio.charset.StandardCharsets
 
 class JsonRedisCodec<K, V>(
     private val keyPrefix: String,
-    private val keyPrefixLength: Int,
+    private val keyPrefixLength: Int = keyPrefix.length,
     private val keyClass: Class<K>,
     private val valueClass: Class<V>
 ) : RedisCodec<K, V> {
