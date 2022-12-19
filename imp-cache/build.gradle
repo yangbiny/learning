@@ -14,8 +14,8 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 
-    implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
-    implementation 'org.hibernate.validator:hibernate-validator:8.0.0.Final'
+    implementation 'org.glassfish:javax.el:3.0.1-b12'
+    implementation 'org.hibernate.validator:hibernate-validator:6.2.5.Final'
 
     // redis
     implementation group: 'io.lettuce', name: 'lettuce-core', version: '6.1.9.RELEASE'
@@ -23,7 +23,7 @@ dependencies {
     // tools
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
     implementation 'com.google.guava:guava:31.1-jre'
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.4.1'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.14.0'
 
     // 日志的支持
     implementation 'ch.qos.logback:logback-classic:1.4.5'

@@ -28,7 +28,7 @@ class CustomCacheTest {
         ).build()
 
 
-        val valueMap = mapOf(Pair("123", "123"), Pair("456", "456"), Pair("789", "789"))
+        val valueMap = mutableMapOf(Pair("123", "123"), Pair("456", "456"), Pair("789", "789"))
 
         build.multiPut(valueMap)
 
@@ -37,6 +37,7 @@ class CustomCacheTest {
         println(multiGet)
 
         build.multiRm(keys)
+        valueMap["101"] = "101"
 
         val load = build.load("101") { item -> valueMap[item]!! }
         println(load)

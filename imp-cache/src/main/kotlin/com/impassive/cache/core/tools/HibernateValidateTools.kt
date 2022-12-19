@@ -1,9 +1,9 @@
 package com.impassive.cache.core.tools
 
-import jakarta.validation.Validation
-import jakarta.validation.Validator
-import jakarta.validation.ValidatorFactory
 import org.hibernate.validator.HibernateValidator
+import javax.validation.Validation
+import javax.validation.Validator
+import javax.validation.ValidatorFactory
 
 /**
  * @author impassive
