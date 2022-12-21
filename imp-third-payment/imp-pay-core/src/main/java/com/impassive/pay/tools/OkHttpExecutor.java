@@ -13,6 +13,7 @@ import okhttp3.Request.Builder;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author impassive
@@ -34,6 +35,20 @@ public class OkHttpExecutor {
             mediaType
         )).build();
 
+    return buildResult(request);
+  }
+
+  public HttpExecuteResult executeWithGet(String url) {
+    Request request = new Builder()
+        .url(url)
+        .get()
+        .build();
+
+    return buildResult(request);
+  }
+
+  @NotNull
+  private HttpExecuteResult buildResult(Request request) {
     try {
       Response execute = httpClient.newCall(request).execute();
       int code = execute.code();

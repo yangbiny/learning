@@ -11,4 +11,7 @@ public record HttpExecuteResult(
     String body
 ) {
 
+  public boolean failed() {
+    return false;
+  }
 }
