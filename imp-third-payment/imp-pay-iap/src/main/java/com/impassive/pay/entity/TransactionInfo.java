@@ -3,9 +3,14 @@ package com.impassive.pay.entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
+/**
+ * @author impassive
+ */
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class IapQueryTransactionResult {
+public class TransactionInfo {
+
+  private String appAccountToken;
 
   private String bundleId;
 
@@ -44,4 +49,5 @@ public class IapQueryTransactionResult {
   private String type;
 
   private String webOrderLineItemId;
+
 }

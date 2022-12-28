@@ -1,4 +1,4 @@
-package com.impassive.pay.entity;
+package com.impassive.pay.entity.notify.v1;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

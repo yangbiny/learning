@@ -1,6 +1,7 @@
-package com.impassive.pay.entity;
+package com.impassive.pay.entity.notify;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.impassive.pay.entity.notify.v1.ReceiptData;
 import lombok.Data;
 
 /**

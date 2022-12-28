@@ -1,7 +1,7 @@
 package com.impassive.pay;
 
-import com.impassive.pay.entity.IapQueryTransactionResult;
-import com.impassive.pay.entity.IapServiceNotifyV1;
+import com.impassive.pay.entity.IapQueryTransactionDecoder;
+import com.impassive.pay.entity.notify.IapServiceNotifyV1;
 import com.impassive.pay.entity.IapSignHeader;
 import com.impassive.pay.entity.OriginTransactionIdResponse;
 import com.impassive.pay.result.PaymentResult;
@@ -42,21 +42,21 @@ public class IapQueryApi {
     if (StringUtils.isAnyEmpty(originTransactionId, transactionId)) {
       return null;
     }
-    List<IapQueryTransactionResult> iapQueryTransactionResults =
+    List<IapQueryTransactionDecoder> iapQueryTransactionRespons =
         queryIapTransactionHistory(originTransactionId);
 
-    Optional<IapQueryTransactionResult> first = iapQueryTransactionResults.stream()
+    Optional<IapQueryTransactionDecoder> first = iapQueryTransactionRespons.stream()
         .filter(item -> StringUtils.equals(transactionId, item.getTransactionId()))
         .findFirst();
 
     if (first.isEmpty()) {
       return PaymentResult.failed(transactionId);
     }
-    IapQueryTransactionResult iapQueryTransactionResult = first.get();
+    IapQueryTransactionDecoder iapQueryTransactionDecoder = first.get();
     return PaymentResult.success(
-        iapQueryTransactionResult.getTransactionId(),
-        iapQueryTransactionResult.getExpiresDate(),
-        iapQueryTransactionResult.getProductId()
+        iapQueryTransactionDecoder.getTransactionId(),
+        iapQueryTransactionDecoder.getExpiresDate(),
+        iapQueryTransactionDecoder.getProductId()
     );
   }
 
@@ -76,7 +76,7 @@ public class IapQueryApi {
   }
 
 
-  private List<IapQueryTransactionResult> queryIapTransactionHistory(String originTransactionId) {
+  private List<IapQueryTransactionDecoder> queryIapTransactionHistory(String originTransactionId) {
     if (StringUtils.isEmpty(originTransactionId)) {
       return Collections.emptyList();
     }
@@ -98,10 +98,10 @@ public class IapQueryApi {
       return Collections.emptyList();
     }
 
-    List<IapQueryTransactionResult> iapQueryResults = new ArrayList<>();
+    List<IapQueryTransactionDecoder> iapQueryResults = new ArrayList<>();
     for (String signedTransaction : response.getSignedTransactions()) {
-      IapQueryTransactionResult iapQueryResult = parsePayload(signedTransaction,
-          IapQueryTransactionResult.class);
+      IapQueryTransactionDecoder iapQueryResult = parsePayload(signedTransaction,
+          IapQueryTransactionDecoder.class);
       iapQueryResults.add(iapQueryResult);
     }
     return iapQueryResults;

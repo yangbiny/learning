@@ -1,4 +1,4 @@
-package com.impassive.pay.entity;
+package com.impassive.pay.entity.notify.v1;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
