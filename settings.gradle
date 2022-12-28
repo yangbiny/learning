@@ -21,3 +21,5 @@ include('imp-third-payment')
 include('imp-cache')
 include('imp-third-payment:imp-pay-iap')
 include('imp-third-payment:imp-pay-core')
+include 'imp-transaction'
+
