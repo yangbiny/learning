@@ -1,6 +1,7 @@
 package com.impassive.pay;
 
 import com.impassive.pay.entity.IapQueryTransactionResult;
+import com.impassive.pay.entity.IapServiceNotifyV1;
 import com.impassive.pay.entity.IapSignHeader;
 import com.impassive.pay.entity.OriginTransactionIdResponse;
 import com.impassive.pay.result.PaymentResult;
@@ -57,6 +58,21 @@ public class IapQueryApi {
         iapQueryTransactionResult.getExpiresDate(),
         iapQueryTransactionResult.getProductId()
     );
+  }
+
+  /**
+   * 解析 IAP 第一个版本的通知
+   *
+   * @param body 通知的全部信息
+   * @return 解析结果。如果 验证失败 或者 通知为空，则会返回null
+   */
+  @Nullable
+  public IapServiceNotifyV1 serviceNotifyV1(String body) {
+    IapServiceNotifyV1 iapServiceNotifyV1 = JsonTools.fromJson(body, IapServiceNotifyV1.class);
+    return iapServiceNotifyV1 != null &&
+        StringUtils.equals(iapServiceNotifyV1.getPassword(), iapProperties.getPassword())
+        ?
+        iapServiceNotifyV1 : null;
   }
 
 

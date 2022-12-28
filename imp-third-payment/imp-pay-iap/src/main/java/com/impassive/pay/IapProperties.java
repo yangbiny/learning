@@ -8,4 +8,5 @@ public class IapProperties {
 
   private String g3Root;
 
+  private String password;
 }
