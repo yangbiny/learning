@@ -15,7 +15,9 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,16 +41,28 @@ public class IapQueryApi {
     if (StringUtils.isAnyEmpty(originTransactionId, transactionId)) {
       return null;
     }
-    List<IapQueryTransactionResult> iapQueryTransactionResults = queryIapTransactionHistory(
-        originTransactionId);
+    List<IapQueryTransactionResult> iapQueryTransactionResults =
+        queryIapTransactionHistory(originTransactionId);
 
-    return null;
+    Optional<IapQueryTransactionResult> first = iapQueryTransactionResults.stream()
+        .filter(item -> StringUtils.equals(transactionId, item.getTransactionId()))
+        .findFirst();
+
+    if (first.isEmpty()) {
+      return PaymentResult.failed(transactionId);
+    }
+    IapQueryTransactionResult iapQueryTransactionResult = first.get();
+    return PaymentResult.success(
+        iapQueryTransactionResult.getTransactionId(),
+        iapQueryTransactionResult.getExpiresDate(),
+        iapQueryTransactionResult.getProductId()
+    );
   }
 
 
   private List<IapQueryTransactionResult> queryIapTransactionHistory(String originTransactionId) {
     if (StringUtils.isEmpty(originTransactionId)) {
-      return null;
+      return Collections.emptyList();
     }
     // apple建议先直接调用线上，如果是沙箱环境再调用沙箱环境
     // 1. 发送请求到apple
@@ -65,7 +79,7 @@ public class IapQueryApi {
     }
 
     if (response == null) {
-      return null;
+      return Collections.emptyList();
     }
 
     List<IapQueryTransactionResult> iapQueryResults = new ArrayList<>();
@@ -114,6 +128,10 @@ public class IapQueryApi {
     byte[] decode = Base64.getUrlDecoder().decode(split[0]);
     String headerStr = new String(decode);
     IapSignHeader iapSignHeader = JsonTools.fromJson(headerStr, IapSignHeader.class);
+    if (iapSignHeader == null) {
+      log.error("parse has  error : {}", jwsContent);
+      return false;
+    }
     try {
       // 验证证书
       List<String> x5c = iapSignHeader.getX5c();
