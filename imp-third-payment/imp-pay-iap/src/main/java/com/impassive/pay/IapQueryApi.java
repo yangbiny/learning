@@ -4,6 +4,7 @@ import com.impassive.pay.entity.IapQueryTransactionDecoder;
 import com.impassive.pay.entity.notify.IapServiceNotifyV1;
 import com.impassive.pay.entity.IapSignHeader;
 import com.impassive.pay.entity.OriginTransactionIdResponse;
+import com.impassive.pay.entity.notify.IapServiceNotifyV2;
 import com.impassive.pay.result.PaymentResult;
 import com.impassive.pay.tools.HttpExecuteResult;
 import com.impassive.pay.tools.JsonTools;
@@ -73,6 +74,11 @@ public class IapQueryApi {
         StringUtils.equals(iapServiceNotifyV1.getPassword(), iapProperties.getPassword())
         ?
         iapServiceNotifyV1 : null;
+  }
+
+  @Nullable
+  public IapServiceNotifyV2 serviceNotifyV2(String body) {
+    return JsonTools.fromJson(body, IapServiceNotifyV2.class);
   }
 
 
