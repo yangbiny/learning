@@ -1,4 +1,4 @@
-package com.impassive.pay.entity.notify.v1;
+package com.impassive.pay.entity.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -17,7 +17,7 @@ public class Receipt {
   /**
    * 收据的信息
    */
-  private List<InApp> inApp;
+  private List<ReceiptItem> inApp;
 
 
   /**

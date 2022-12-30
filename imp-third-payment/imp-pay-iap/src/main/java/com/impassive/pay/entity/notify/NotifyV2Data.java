@@ -16,7 +16,9 @@ public class NotifyV2Data {
   private String bundleId;
   private String bundleVersion;
   private String environment;
-  private RenewInfo signedRenewalInfo;
-  private TransactionInfo signedTransactionInfo;
+  private String signedRenewalInfo;
+  private RenewInfo renewalInfo;
+  private String signedTransactionInfo;
+  private TransactionInfo transactionInfo;
 
 }

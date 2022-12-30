@@ -6,4 +6,7 @@ public class JsonTools {
     return null;
   }
 
+  public static <T> String toJson(T iapRequestBody) {
+    return null;
+  }
 }

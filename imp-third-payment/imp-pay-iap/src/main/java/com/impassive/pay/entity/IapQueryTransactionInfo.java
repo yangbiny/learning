@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class IapQueryTransactionDecoder {
+public class IapQueryTransactionInfo {
 
   private String bundleId;
 

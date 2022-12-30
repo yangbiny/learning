@@ -1,4 +1,4 @@
-package com.impassive.pay.entity.notify.v1;
+package com.impassive.pay.entity.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -21,7 +21,7 @@ public class ReceiptData {
   @JsonProperty("pending_renewal_info")
   private List<PendingRenewInfo> pendingRenewInfos;
   @JsonProperty("latest_receipt_info")
-  private List<InApp> latestReceiptInfo;
+  private List<ReceiptItem> latestReceiptInfo;
   private Integer status;
 
 }

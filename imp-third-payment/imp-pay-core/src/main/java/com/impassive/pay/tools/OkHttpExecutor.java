@@ -27,12 +27,12 @@ public class OkHttpExecutor {
   }
 
 
-  public HttpExecuteResult executeWithPost(String url, String body, MediaType mediaType) {
+  public HttpExecuteResult executeWithPost(String url, String body) {
     Request request = new Builder()
         .url(url)
         .post(RequestBody.create(
             body,
-            mediaType
+            MediaType.parse("application/json; charset=utf-8")
         )).build();
 
     return buildResult(request);

@@ -1,11 +1,17 @@
 package com.impassive.pay;
 
-import com.impassive.pay.entity.IapQueryTransactionDecoder;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.impassive.pay.entity.IapQueryTransactionInfo;
+import com.impassive.pay.entity.RenewInfo;
+import com.impassive.pay.entity.TransactionInfo;
 import com.impassive.pay.entity.notify.IapServiceNotifyV1;
 import com.impassive.pay.entity.IapSignHeader;
 import com.impassive.pay.entity.OriginTransactionIdResponse;
 import com.impassive.pay.entity.notify.IapServiceNotifyV2;
-import com.impassive.pay.result.PaymentResult;
+import com.impassive.pay.entity.notify.NotifyV2Data;
+import com.impassive.pay.entity.receipt.ReceiptInfo;
 import com.impassive.pay.tools.HttpExecuteResult;
 import com.impassive.pay.tools.JsonTools;
 import com.impassive.pay.tools.OkHttpExecutor;
@@ -19,9 +25,10 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import javax.annotation.Nullable;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -34,31 +41,20 @@ import org.apache.commons.lang3.StringUtils;
 @RequiredArgsConstructor
 public class IapQueryApi {
 
+  private static final String receiptUrl = "https://buy.itunes.apple.com/verifyReceipt";
+
+  private static final String receiptSandBoxUrl = "https://sandbox.itunes.apple.com/verifyReceipt";
+
   private static final String payCheckUrl = "https://api.storekit.itunes.apple.com/inApps/v1/history/%s?sort=DESCENDING";
   private static final String payCheckSandBoxUrl = "https://api.storekit-sandbox.itunes.apple.com/inApps/v1/history/%s?sort=DESCENDING";
   private final OkHttpExecutor okHttpExecutor;
   private final IapProperties iapProperties;
 
-  public PaymentResult checkPaymentResult(String originTransactionId, String transactionId) {
-    if (StringUtils.isAnyEmpty(originTransactionId, transactionId)) {
+  public List<IapQueryTransactionInfo> checkPaymentResult(String originTransactionId) {
+    if (StringUtils.isAnyEmpty(originTransactionId)) {
       return null;
     }
-    List<IapQueryTransactionDecoder> iapQueryTransactionRespons =
-        queryIapTransactionHistory(originTransactionId);
-
-    Optional<IapQueryTransactionDecoder> first = iapQueryTransactionRespons.stream()
-        .filter(item -> StringUtils.equals(transactionId, item.getTransactionId()))
-        .findFirst();
-
-    if (first.isEmpty()) {
-      return PaymentResult.failed(transactionId);
-    }
-    IapQueryTransactionDecoder iapQueryTransactionDecoder = first.get();
-    return PaymentResult.success(
-        iapQueryTransactionDecoder.getTransactionId(),
-        iapQueryTransactionDecoder.getExpiresDate(),
-        iapQueryTransactionDecoder.getProductId()
-    );
+    return queryIapTransactionHistory(originTransactionId);
   }
 
   /**
@@ -78,11 +74,59 @@ public class IapQueryApi {
 
   @Nullable
   public IapServiceNotifyV2 serviceNotifyV2(String body) {
-    return JsonTools.fromJson(body, IapServiceNotifyV2.class);
+    if (StringUtils.isEmpty(body)) {
+      throw new IllegalArgumentException("body 不能为空");
+    }
+    IapServiceNotifyV2 iapServiceNotifyV2 = parsePayload(body, IapServiceNotifyV2.class);
+    if (iapServiceNotifyV2 == null || iapServiceNotifyV2.illegalNotify()) {
+      log.warn("illegal notify : {}", body);
+      return null;
+    }
+    NotifyV2Data data = iapServiceNotifyV2.getData();
+    RenewInfo renewInfo = parsePayload(data.getSignedRenewalInfo(), RenewInfo.class);
+    TransactionInfo transactionInfo = parsePayload(data.getSignedTransactionInfo(),
+        TransactionInfo.class);
+    if (renewInfo == null || transactionInfo == null) {
+      log.error("parse data has failed : {}, {}", body, iapServiceNotifyV2);
+      return null;
+    }
+    data.setRenewalInfo(renewInfo);
+    data.setTransactionInfo(transactionInfo);
+    return iapServiceNotifyV2;
+  }
+
+  @Nullable
+  public ReceiptInfo queryTransactionInfoWithReceipt(String receipt) {
+    if (StringUtils.isEmpty(receipt)) {
+      log.warn("receipt 不能为空");
+      return null;
+    }
+    return queryReceiptInfo(receipt);
   }
 
 
-  private List<IapQueryTransactionDecoder> queryIapTransactionHistory(String originTransactionId) {
+  @Nullable
+  private ReceiptInfo queryReceiptInfo(String receiptData) {
+    if (StringUtils.isEmpty(receiptData)) {
+      return null;
+    }
+    // apple建议先直接调用线上，如果是沙箱环境再调用沙箱环境
+    // 1. 发送请求到apple
+    ReceiptInfo receiptInfo = null;
+    int index = 3;
+    while (index >= 0 && (receiptInfo == null || receiptInfo.needTryAgain())) {
+      receiptInfo = sendReceiptToApple(receiptData, false);
+      // 2. 验证返回值是否是沙箱环境
+      if (receiptInfo != null && receiptInfo.isSandBox()) {
+        // 2.1 是沙箱环境重新请求沙箱环境
+        receiptInfo = sendReceiptToApple(receiptData, true);
+      }
+      index--;
+    }
+    return receiptInfo == null ? null : receiptInfo.needTryAgain() ? null : receiptInfo;
+  }
+
+  private List<IapQueryTransactionInfo> queryIapTransactionHistory(String originTransactionId) {
     if (StringUtils.isEmpty(originTransactionId)) {
       return Collections.emptyList();
     }
@@ -104,13 +148,33 @@ public class IapQueryApi {
       return Collections.emptyList();
     }
 
-    List<IapQueryTransactionDecoder> iapQueryResults = new ArrayList<>();
+    List<IapQueryTransactionInfo> iapQueryResults = new ArrayList<>();
     for (String signedTransaction : response.getSignedTransactions()) {
-      IapQueryTransactionDecoder iapQueryResult = parsePayload(signedTransaction,
-          IapQueryTransactionDecoder.class);
+      IapQueryTransactionInfo iapQueryResult = parsePayload(signedTransaction,
+          IapQueryTransactionInfo.class);
       iapQueryResults.add(iapQueryResult);
     }
     return iapQueryResults;
+  }
+
+  @Nullable
+  private ReceiptInfo sendReceiptToApple(String receiptData, Boolean isSandBox) {
+    String usedUrl = receiptUrl;
+    if (isSandBox) {
+      usedUrl = receiptSandBoxUrl;
+    }
+    IapRequestBody iapRequestBody = new IapRequestBody(receiptData, iapProperties.getPassword());
+
+    HttpExecuteResult httpExecuteResult = okHttpExecutor.executeWithPost(usedUrl,
+        JsonTools.toJson(iapRequestBody));
+    if (httpExecuteResult == null) {
+      return null;
+    }
+    String string = httpExecuteResult.body();
+    if (log.isDebugEnabled()) {
+      log.debug("received info : {}", string);
+    }
+    return JsonTools.fromJson(string, ReceiptInfo.class);
   }
 
 
@@ -134,13 +198,13 @@ public class IapQueryApi {
     if (StringUtils.isEmpty(jwsContent)) {
       return null;
     }
-    String[] split = jwsContent.split("\\.");
-    // 载荷信息
-    String payload = new String(Base64.getUrlDecoder().decode(split[1]));
     if (!verify(jwsContent)) {
       log.error("验证失败 ： {}", jwsContent);
       return null;
     }
+    String[] split = jwsContent.split("\\.");
+    // 载荷信息
+    String payload = new String(Base64.getUrlDecoder().decode(split[1]));
     log.info("payload : {}", payload);
     return JsonTools.fromJson(payload, classType);
   }
@@ -214,4 +278,28 @@ public class IapQueryApi {
     return (X509Certificate) x509.generateCertificate(inStream);
   }
 
+
+  @Getter
+  @JsonInclude(Include.NON_NULL)
+  private static class IapRequestBody {
+
+    @JsonProperty("receipt-data")
+    private final String receiptData;
+
+    private final String password;
+
+    /**
+     * 为true的时候，只会包含最后一次的续订的信息，不会包含已经发生过的续订的信息
+     */
+    @Setter
+    @JsonProperty("exclude-old-transactions")
+    private Boolean excludeOldTransactions;
+
+    public IapRequestBody(String receiptData, String password) {
+      this.receiptData = receiptData;
+      this.password = password;
+      this.excludeOldTransactions = true;
+    }
+
+  }
 }
