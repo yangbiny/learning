@@ -4,14 +4,17 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.impassive.pay.entity.IapQueryTransactionInfo;
+import com.impassive.pay.entity.IapSignHeader;
+import com.impassive.pay.entity.OriginTransactionIdResponse;
 import com.impassive.pay.entity.RenewInfo;
 import com.impassive.pay.entity.TransactionInfo;
 import com.impassive.pay.entity.notify.IapServiceNotifyV1;
-import com.impassive.pay.entity.IapSignHeader;
-import com.impassive.pay.entity.OriginTransactionIdResponse;
 import com.impassive.pay.entity.notify.IapServiceNotifyV2;
 import com.impassive.pay.entity.notify.NotifyV2Data;
 import com.impassive.pay.entity.receipt.ReceiptInfo;
+import com.impassive.pay.entity.subscribe.IapLastTransactionData;
+import com.impassive.pay.entity.subscribe.IapSubscribeQueryResponse;
+import com.impassive.pay.entity.subscribe.OriginDataResponse;
 import com.impassive.pay.tools.HttpExecuteResult;
 import com.impassive.pay.tools.JsonTools;
 import com.impassive.pay.tools.OkHttpExecutor;
@@ -46,7 +49,12 @@ public class IapQueryApi {
   private static final String receiptSandBoxUrl = "https://sandbox.itunes.apple.com/verifyReceipt";
 
   private static final String payCheckUrl = "https://api.storekit.itunes.apple.com/inApps/v1/history/%s?sort=DESCENDING";
+
   private static final String payCheckSandBoxUrl = "https://api.storekit-sandbox.itunes.apple.com/inApps/v1/history/%s?sort=DESCENDING";
+
+  private static final String subscribeCheckUrl = "https://api.storekit.itunes.apple.com/inApps/v1/subscriptions/%s";
+
+  private static final String subscribeCheckSandBoxUrl = " https://api.storekit-sandbox.itunes.apple.com/inApps/v1/subscriptions/%s";
   private final OkHttpExecutor okHttpExecutor;
   private final IapProperties iapProperties;
 
@@ -104,29 +112,7 @@ public class IapQueryApi {
     return queryReceiptInfo(receipt);
   }
 
-
-  @Nullable
-  private ReceiptInfo queryReceiptInfo(String receiptData) {
-    if (StringUtils.isEmpty(receiptData)) {
-      return null;
-    }
-    // apple建议先直接调用线上，如果是沙箱环境再调用沙箱环境
-    // 1. 发送请求到apple
-    ReceiptInfo receiptInfo = null;
-    int index = 3;
-    while (index >= 0 && (receiptInfo == null || receiptInfo.needTryAgain())) {
-      receiptInfo = sendReceiptToApple(receiptData, false);
-      // 2. 验证返回值是否是沙箱环境
-      if (receiptInfo != null && receiptInfo.isSandBox()) {
-        // 2.1 是沙箱环境重新请求沙箱环境
-        receiptInfo = sendReceiptToApple(receiptData, true);
-      }
-      index--;
-    }
-    return receiptInfo == null ? null : receiptInfo.needTryAgain() ? null : receiptInfo;
-  }
-
-  private List<IapQueryTransactionInfo> queryIapTransactionHistory(String originTransactionId) {
+  public List<IapQueryTransactionInfo> queryIapTransactionHistory(String originTransactionId) {
     if (StringUtils.isEmpty(originTransactionId)) {
       return Collections.emptyList();
     }
@@ -155,6 +141,69 @@ public class IapQueryApi {
       iapQueryResults.add(iapQueryResult);
     }
     return iapQueryResults;
+  }
+
+  @Nullable
+  public IapSubscribeQueryResponse queryIapSubscribe(String originTransactionId) {
+    if (StringUtils.isEmpty(originTransactionId)) {
+      log.error("origin transaction 不能为空");
+      return null;
+    }
+    // apple建议先直接调用线上，如果是沙箱环境再调用沙箱环境
+    // 1. 发送请求到apple
+    IapSubscribeQueryResponse response = null;
+    int index = 3;
+    while (index >= 0 && response == null) {
+      response = queryAppleSubscribeStatus(originTransactionId, false);
+      // 2. 验证返回值是否是沙箱环境
+      if (response != null && response.isSandBox()) {
+        // 2.1 是沙箱环境重新请求沙箱环境
+        response = queryAppleSubscribeStatus(originTransactionId, true);
+      }
+      index--;
+    }
+
+    if (response == null) {
+      return null;
+    }
+
+    List<OriginDataResponse> dataList = response.getData();
+    for (OriginDataResponse data : dataList) {
+      for (IapLastTransactionData lastTransactionData : data.getLastTransactions()) {
+        TransactionInfo iapQueryTransactionResult = parsePayload(
+            lastTransactionData.getSignedTransactionInfo(),
+            TransactionInfo.class
+        );
+        RenewInfo iapQueryRenewResult = parsePayload(
+            lastTransactionData.getSignedRenewalInfo(),
+            RenewInfo.class
+        );
+        lastTransactionData.setTransactionInfo(iapQueryTransactionResult);
+        lastTransactionData.setRenewalInfo(iapQueryRenewResult);
+      }
+    }
+    return response;
+  }
+
+  @Nullable
+  private ReceiptInfo queryReceiptInfo(String receiptData) {
+    if (StringUtils.isEmpty(receiptData)) {
+      return null;
+    }
+    // apple建议先直接调用线上，如果是沙箱环境再调用沙箱环境
+    // 1. 发送请求到apple
+    ReceiptInfo receiptInfo = null;
+    int index = 3;
+    while (index >= 0 && (receiptInfo == null || receiptInfo.needTryAgain())) {
+      receiptInfo = sendReceiptToApple(receiptData, false);
+      // 2. 验证返回值是否是沙箱环境
+      if (receiptInfo != null && receiptInfo.isSandBox()) {
+        // 2.1 是沙箱环境重新请求沙箱环境
+        receiptInfo = sendReceiptToApple(receiptData, true);
+      }
+      index--;
+    }
+    return receiptInfo == null ? null : receiptInfo.needTryAgain() ? null : receiptInfo;
   }
 
   @Nullable
@@ -191,6 +240,21 @@ public class IapQueryApi {
       return null;
     }
     return JsonTools.fromJson(httpExecuteResult.body(), OriginTransactionIdResponse.class);
+  }
+
+  @Nullable
+  private IapSubscribeQueryResponse queryAppleSubscribeStatus(String originTransaction,
+      Boolean isSandBox) {
+    String usedUrl = subscribeCheckUrl;
+    if (isSandBox) {
+      usedUrl = subscribeCheckSandBoxUrl;
+    }
+    HttpExecuteResult httpExecuteResult = okHttpExecutor.executeWithGet(
+        String.format(usedUrl, originTransaction));
+    if (httpExecuteResult == null || StringUtils.isEmpty(httpExecuteResult.body())) {
+      return null;
+    }
+    return JsonTools.fromJson(httpExecuteResult.body(), IapSubscribeQueryResponse.class);
   }
 
   @Nullable
