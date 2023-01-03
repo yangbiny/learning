@@ -53,7 +53,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
  */
 @Slf4j
 @RequiredArgsConstructor
-public class IapQueryApi {
+public class IapQueryClient {
 
   private static final String receiptUrl = "https://buy.itunes.apple.com/verifyReceipt";
 
