@@ -1,5 +1,6 @@
 package com.impassive.pay;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -18,22 +19,32 @@ import com.impassive.pay.entity.subscribe.OriginDataResponse;
 import com.impassive.pay.tools.HttpExecuteResult;
 import com.impassive.pay.tools.JsonTools;
 import com.impassive.pay.tools.OkHttpExecutor;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.Security;
 import java.security.Signature;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
+import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.Headers;
 import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /**
  * Apple App Store 应用内购买 查询服务的 API入口，需要开通App Store Service 服务才可以使用
@@ -55,15 +66,12 @@ public class IapQueryApi {
   private static final String subscribeCheckUrl = "https://api.storekit.itunes.apple.com/inApps/v1/subscriptions/%s";
 
   private static final String subscribeCheckSandBoxUrl = " https://api.storekit-sandbox.itunes.apple.com/inApps/v1/subscriptions/%s";
+
+  private static final String orderCheckUrl = "https://api.storekit.itunes.apple.com/inApps/v1/lookup/%s";
+
   private final OkHttpExecutor okHttpExecutor;
   private final IapProperties iapProperties;
 
-  public List<IapQueryTransactionInfo> checkPaymentResult(String originTransactionId) {
-    if (StringUtils.isAnyEmpty(originTransactionId)) {
-      return null;
-    }
-    return queryIapTransactionHistory(originTransactionId);
-  }
 
   /**
    * 解析 IAP 第一个版本的通知
@@ -185,6 +193,38 @@ public class IapQueryApi {
     return response;
   }
 
+  public List<IapQueryTransactionInfo> queryWithOrderId(String orderId) {
+    String url = String.format(orderCheckUrl, orderId);
+    HttpExecuteResult httpExecuteResult = executeGet(url);
+    if (httpExecuteResult.failed()) {
+      return Collections.emptyList();
+    }
+
+    String body = httpExecuteResult.body();
+    OrderResponse orderResponse = JsonTools.fromJson(body, OrderResponse.class);
+    if (orderResponse == null || orderResponse.checkIsFailed()) {
+      return Collections.emptyList();
+    }
+
+    List<IapQueryTransactionInfo> results = new ArrayList<>();
+    for (String signedTransaction : orderResponse.signedTransactions) {
+      IapQueryTransactionInfo iapQueryTransactionResult = parsePayload(
+          signedTransaction,
+          IapQueryTransactionInfo.class
+      );
+      results.add(iapQueryTransactionResult);
+    }
+    return results;
+  }
+
+  private HttpExecuteResult executeGet(String url) {
+    Headers headers = new Headers.Builder()
+        .add("Authorization", String.format("Bearer %s", generateSign()))
+        .build();
+    return okHttpExecutor.executeWithGet(url, headers);
+  }
+
+
   @Nullable
   private ReceiptInfo queryReceiptInfo(String receiptData) {
     if (StringUtils.isEmpty(receiptData)) {
@@ -234,8 +274,7 @@ public class IapQueryApi {
     if (isSandBox) {
       usedUrl = payCheckSandBoxUrl;
     }
-    HttpExecuteResult httpExecuteResult = okHttpExecutor.executeWithGet(
-        String.format(usedUrl, originTransaction));
+    HttpExecuteResult httpExecuteResult = executeGet(String.format(usedUrl, originTransaction));
     if (httpExecuteResult.failed()) {
       return null;
     }
@@ -249,8 +288,7 @@ public class IapQueryApi {
     if (isSandBox) {
       usedUrl = subscribeCheckSandBoxUrl;
     }
-    HttpExecuteResult httpExecuteResult = okHttpExecutor.executeWithGet(
-        String.format(usedUrl, originTransaction));
+    HttpExecuteResult httpExecuteResult = executeGet(String.format(usedUrl, originTransaction));
     if (httpExecuteResult == null || StringUtils.isEmpty(httpExecuteResult.body())) {
       return null;
     }
@@ -342,6 +380,36 @@ public class IapQueryApi {
     return (X509Certificate) x509.generateCertificate(inStream);
   }
 
+  private String generateSign() {
+    long epochSecond = Instant.now().getEpochSecond();
+    String sign = String.format("""
+        {
+          "iss": "%s",  "iat": %s,
+          "exp": %s,
+          "aud": "appstoreconnect-v1",
+          "bid": "com.duitang.DuiTangMain"
+        }
+        """, iapProperties.getIssId(), epochSecond, epochSecond + 5 * 60);
+    return Jwts.builder()
+        .setHeaderParam("alg", "ES256")
+        .setHeaderParam("kid", iapProperties.getKeyId())
+        .setHeaderParam("typ", "JWT")
+        .signWith(SignatureAlgorithm.ES256, generatePrivateKey())
+        .setPayload(sign)
+        .compact();
+  }
+
+  private PrivateKey generatePrivateKey() {
+    try {
+      Security.addProvider(new BouncyCastleProvider());
+      KeyFactory keyFactory = KeyFactory.getInstance("ECDH", "BC");
+      byte[] devicePriKeyBytes = Base64.getDecoder().decode(iapProperties.getPrivateKey());
+      PKCS8EncodedKeySpec devicePriKeySpec = new PKCS8EncodedKeySpec(devicePriKeyBytes);
+      return keyFactory.generatePrivate(devicePriKeySpec);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
 
   @Getter
   @JsonInclude(Include.NON_NULL)
@@ -365,5 +433,18 @@ public class IapQueryApi {
       this.excludeOldTransactions = true;
     }
 
+  }
+
+  @Data
+  @JsonIgnoreProperties(ignoreUnknown = true)
+  private static class OrderResponse {
+
+    private Integer status;
+
+    private List<String> signedTransactions;
+
+    public boolean checkIsFailed() {
+      return status == 1;
+    }
   }
 }

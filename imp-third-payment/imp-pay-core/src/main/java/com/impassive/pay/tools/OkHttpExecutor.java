@@ -47,6 +47,15 @@ public class OkHttpExecutor {
     return buildResult(request);
   }
 
+  public HttpExecuteResult executeWithGet(String url, Headers headers) {
+    Request request = new Builder()
+        .url(url)
+        .get()
+        .headers(headers)
+        .build();
+    return buildResult(request);
+  }
+
   @NotNull
   private HttpExecuteResult buildResult(Request request) {
     try {
