@@ -14,6 +14,8 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 
     implementation project(":imp-third-payment:imp-pay-core")
+
+    implementation 'com.alipay.sdk:alipay-sdk-java:4.35.9.ALL'
 }
 
 test {
