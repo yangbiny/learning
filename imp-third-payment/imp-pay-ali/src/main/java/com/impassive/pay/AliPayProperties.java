@@ -1,5 +1,6 @@
 package com.impassive.pay;
 
+import java.time.Duration;
 import lombok.Data;
 
 /**
@@ -15,5 +16,10 @@ public class AliPayProperties {
   private String payNotifyUrl;
   private String subNotifyUrl;
   private String sellerId;
+
+  /**
+   * 订单超时时间
+   */
+  private Duration orderTimeOutExpress = Duration.ofMinutes(5);
 
 }
