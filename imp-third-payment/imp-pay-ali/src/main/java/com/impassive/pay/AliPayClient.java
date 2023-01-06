@@ -1,13 +1,18 @@
 package com.impassive.pay;
 
+import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayConfig;
 import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.domain.AlipayTradeAppPayModel;
 import com.alipay.api.request.AlipayTradeAppPayRequest;
+import com.alipay.api.request.AlipayTradeQueryRequest;
 import com.alipay.api.response.AlipayTradeAppPayResponse;
+import com.alipay.api.response.AlipayTradeQueryResponse;
 import com.impassive.pay.cmd.CreatePaySignCmd;
+import com.impassive.pay.entity.AliTradeStatus;
 import com.impassive.pay.exception.ApplySignException;
+import com.impassive.pay.result.AliTradeInfo;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -52,6 +57,31 @@ public class AliPayClient {
     } catch (Exception e) {
       log.error("AliPay create trade error, ", e);
       throw new ApplySignException(e);
+    }
+  }
+
+  private AliTradeInfo queryTradeInfo(String paymentNo) {
+    try {
+      AlipayTradeQueryRequest request = new AlipayTradeQueryRequest();
+      JSONObject bizContent = new JSONObject();
+      // 我们自己的交易ID
+      bizContent.put("out_trade_no", paymentNo);
+      request.setBizContent(bizContent.toString());
+      AlipayTradeQueryResponse execute = alipayClient.execute(request);
+      if (!execute.isSuccess()) {
+        log.error("query has failed : {}", execute.getBody());
+        throw new RuntimeException("query has failed");
+      }
+      String aliStatus = execute.getTradeStatus();
+      AliTradeStatus aliTradeStatus = AliTradeStatus.of(aliStatus);
+      if (aliTradeStatus == null) {
+        log.error("trade status is null : {}, {}, {}", paymentNo, execute, aliStatus);
+        return null;
+      }
+      return null;
+    } catch (Exception e) {
+      log.error("query alipay result has error : {}", paymentNo, e);
+      throw new RuntimeException(e);
     }
   }
 
