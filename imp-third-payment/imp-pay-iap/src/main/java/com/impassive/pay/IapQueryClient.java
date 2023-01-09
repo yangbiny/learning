@@ -382,12 +382,13 @@ public class IapQueryClient {
 
   private String generateSign() {
     long epochSecond = Instant.now().getEpochSecond();
+    // TODO
     String sign = String.format("""
         {
           "iss": "%s",  "iat": %s,
           "exp": %s,
           "aud": "appstoreconnect-v1",
-          "bid": "com.duitang.DuiTangMain"
+          "bid": ""
         }
         """, iapProperties.getIssId(), epochSecond, epochSecond + 5 * 60);
     return Jwts.builder()

@@ -1,0 +1,36 @@
+plugins {
+    // Apply the scala Plugin to add support for Scala.
+    id 'scala'
+    // Apply the application plugin to add support for building a CLI application in Java.
+    id 'application'
+}
+
+group 'com.impassive'
+version '1.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    sparkVersion = "3.0.3"
+    scalaVersion = "2.12.10"
+}
+
+dependencies {
+    implementation "org.scala-lang:scala-library:${scalaVersion}"
+
+    compileOnly 'org.apache.spark:spark-sql_2.12:2.4.0'
+    implementation 'com.google.guava:guava:31.0.1-jre'
+    implementation 'org.apache.spark:spark-streaming_2.12:3.0.3'
+    implementation 'org.apache.spark:spark-mllib_2.12:3.0.3'
+    implementation 'org.apache.hbase:hbase-client:2.2.4'
+    implementation 'org.apache.hbase:hbase-mapreduce:2.2.4'
+    implementation 'org.apache.hbase:hbase-common:2.2.4'
+    implementation 'org.apache.spark:spark-sql-kafka-0-10_2.12:2.4.0'
+    implementation 'org.jblas:jblas:1.2.4'
+    implementation 'org.scalaj:scalaj-http_2.13:2.4.2'
+    implementation 'it.unimi.dsi:fastutil:8.3.1'
+
+    testImplementation 'junit:junit:4.13.2'
+}
