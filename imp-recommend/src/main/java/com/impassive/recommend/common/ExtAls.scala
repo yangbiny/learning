@@ -1,13 +1,12 @@
 package com.impassive.recommend.common
 
-import org.apache.spark.mllib.recommendation.{MatrixFactorizationModel, Rating}
-
-import scala.collection.mutable
 import org.apache.spark.mllib.linalg.DenseMatrix
 import org.apache.spark.mllib.rdd.MLPairRDDFunctions.fromPairRDD
 import org.apache.spark.rdd.RDD
 import org.apache.spark.storage.StorageLevel
 import org.jblas.DoubleMatrix
+
+import scala.collection.mutable
 
 /**
  * Support more tuning feature for LAS model: org.apache.spark.mllib.recommendation.MatrixFactorizationModel

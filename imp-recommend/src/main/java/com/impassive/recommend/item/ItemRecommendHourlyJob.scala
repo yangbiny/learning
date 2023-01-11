@@ -27,10 +27,9 @@ object ItemRecommendHourlyJob {
       .config(initConf())
       .getOrCreate()
     val sc = spark.sparkContext
-    SimpleLogTools.info("Start hourly rec Training", LOGGER_NAME, sc)
 
     val userIds = ItemRecommendSrv.findUsersActiveInHours(1)
-    SimpleLogTools.info(s"found active Users ${userIds}", LOGGER_NAME, sc)
+
     val userIdsBr = sc.broadcast(userIds)
     /*加载模型*/
     val model = ModelRepo.load(sc, spark)
@@ -43,7 +42,6 @@ object ItemRecommendHourlyJob {
       2000
     )
 
-    SimpleLogTools.info("finish hourly rec Training", LOGGER_NAME, sc)
   }
 
 

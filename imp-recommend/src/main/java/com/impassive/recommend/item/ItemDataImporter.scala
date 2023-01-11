@@ -22,7 +22,6 @@ object ItemDataImporter {
   }
 
   def readSingleFile(sc: SparkContext, fileName: String): Unit = {
-    //    sc.newAPIHadoopRDD(hbaseConf, classOf[TableInputFormat], classOf[ImmutableBytesWritable], classOf[Result]).count()
     @transient val hbaseConf = HBaseConfiguration.create()
     @transient val jobConf = new JobConf(hbaseConf)
     jobConf.set("hbase.zookeeper.quorum", "")
@@ -48,7 +47,7 @@ object ItemDataImporter {
     //    var startDay = FastDateFormat.getInstance("yyyyMMdd").parse("20200301")
     //    val endDay = FastDateFormat.getInstance("yyyyMMdd").parse("20200425")
     //    while (startDay.compareTo(endDay) <= 0) {
-    //      val filename = String.format("/tmp/carl/%s.json/part-00000", FastDateFormat.getInstance("yyyyMMdd").format(startDay))
+    //      val filename = String.format("/tmp/%s.json/part-00000", FastDateFormat.getInstance("yyyyMMdd").format(startDay))
     //      readSingleFile(sc, filename)
     //      startDay = DateUtils.addDays(startDay, 1)
     //    }
@@ -56,7 +55,7 @@ object ItemDataImporter {
     // 统计数量
     //    @transient val hbaseConf = HBaseConfiguration.create()
     //    hbaseConf.set("hbase.zookeeper.quorum", "")
-    //    hbaseConf.set(TableInputFormat.INPUT_TABLE, "feed_click_event")
+    //    hbaseConf.set(TableInputFormat.INPUT_TABLE, "tableName")
     //    sc.newAPIHadoopRDD(hbaseConf, classOf[TableInputFormat], classOf[ImmutableBytesWritable], classOf[Result]).count()
     //  }
   }

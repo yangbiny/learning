@@ -1,16 +1,12 @@
 package com.impassive.recommend.item
 
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 import com.github.fommil.netlib
-import com.impassive.recommend.common.{AlsBoundedPriorityQueue, KafkaDataItem, SimpleLogTools}
+import com.impassive.recommend.common.{AlsBoundedPriorityQueue, KafkaDataItem}
 import it.unimi.dsi.fastutil.ints.IntOpenHashBigSet
-import org.apache.commons.lang3.time.FastDateFormat
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.storage.StorageLevel
-import scalaj.http.Http
 
 /**
  * Feed 核心推荐逻辑
@@ -18,27 +14,10 @@ import scalaj.http.Http
 @SerialVersionUID(1L)
 object ItemRecommendSrv extends Serializable {
 
-  val LOGGER_NAME = "com.impassive.recommend.item.ItemRecommendSrv"
   /**
    * 每次给用户推荐的物品数、暂定是 200一次
    */
-  private val DEFAULT_NUM = 200;
-
-  private val ONE_HOUR = 3600L * 1000L
-
-  val ONE_DAY = 24L * 3600L * 1000L
-
-  private val CLICKHOUSE_HTTP_URL = ""
-
-  /**
-   * CLICK HOUSE 的 HTTP 参数需要 URL 编码
-   *
-   * @param str 原始字符串
-   * @return
-   */
-  def urlEncode(str: String): String = {
-    URLEncoder.encode(str, StandardCharsets.UTF_8.toString)
-  }
+  private val DEFAULT_NUM = 200
 
   def blockify(
                 features: RDD[(Int, Array[Double])],
@@ -65,30 +44,29 @@ object ItemRecommendSrv extends Serializable {
   /**
    * 使用 rdd 的 join 算法实现 特征矩阵的计算
    */
-  def recommendForAll(
-                       rank: Int,
-                       srcFeatures: RDD[(Int, Array[Double])],
-                       dstFeatures: RDD[(Int, Array[Double])],
-                       num: Int,
-                       spark: SparkSession
-                     ): RDD[(Int, Array[(Int, Double)])] = {
+  private def recommendForAll(
+                               rank: Int,
+                               srcFeatures: RDD[(Int, Array[Double])],
+                               dstFeatures: RDD[(Int, Array[Double])],
+                               num: Int,
+                               spark: SparkSession
+                             ): RDD[(Int, Array[(Int, Double)])] = {
 
 
     val userCnt = srcFeatures.count().toInt
-    SimpleLogTools.info(s"userCnt: ${}, productCnt: ${dstFeatures.count()}", LOGGER_NAME, spark.sparkContext)
+
     val srcBlocks = blockify(srcFeatures.repartition(userCnt / 4096))
     val dstBlocks = blockify(dstFeatures)
+
     srcBlocks.persist(StorageLevel.MEMORY_AND_DISK_SER)
     dstBlocks.persist(StorageLevel.MEMORY_AND_DISK_SER)
     val srcBlocksCnt = srcBlocks.count()
     val dstBlocksCnt = dstBlocks.count()
 
-    SimpleLogTools.info(s"userBlockCnt: ${srcBlocksCnt}, productCnt: ${dstBlocksCnt}", LOGGER_NAME, spark.sparkContext)
     if (srcBlocksCnt == 0 || dstBlocksCnt == 0) {
       return spark.sparkContext.emptyRDD
     }
 
-    SimpleLogTools.info(s"start cartesian", LOGGER_NAME, spark.sparkContext)
     val ratings = srcBlocks.cartesian(dstBlocks).flatMap { case (srcIter, dstIter) =>
       val m = srcIter.size
       val n = math.min(dstIter.size, num)
@@ -132,16 +110,15 @@ object ItemRecommendSrv extends Serializable {
                      spark: SparkSession,
                      num: Int = DEFAULT_NUM
                    ): Unit = {
-    //    userFeatures.filter(x => userIds.value.contains(x._1))
     val ret = recommendForAll(rank, userFeatures.filter(x => userIds.value.contains(x._1)), productFeatures, num, spark)
-    saveToKafka(ret, spark, "topic_feed_rec")
+    saveToKafka(ret, spark, "kafka topic")
   }
 
-  def saveToKafka(
-                   ret: RDD[(Int, Array[(Int, Double)])],
-                   spark: SparkSession,
-                   topic: String
-                 ): Unit = {
+  private def saveToKafka(
+                           ret: RDD[(Int, Array[(Int, Double)])],
+                           spark: SparkSession,
+                           topic: String
+                         ): Unit = {
     val timeAsSec = System.currentTimeMillis() / 1000L
     import spark.implicits._
     val kafkaDataDF = ret.map(x => {
@@ -151,7 +128,7 @@ object ItemRecommendSrv extends Serializable {
       KafkaDataItem(null, timeAsSec + ":" + x._1 + ":" + value)
     }).toDF("key", "value")
     kafkaDataDF
-      .selectExpr("CAST(value AS STRING)")
+      .selectExpr("CAST(value AS STRING)") // 将 Kafka data item 里面的 value 转换为 string
       .write.format("kafka")
       .option("kafka.bootstrap.servers", "")
       .option("topic", topic).save()
@@ -163,24 +140,6 @@ object ItemRecommendSrv extends Serializable {
    * @param hoursBefore 必须 < 24
    */
   def findUsersActiveInHours(hoursBefore: Float): IntOpenHashBigSet = {
-    val now = System.currentTimeMillis();
-    val endPartition = FastDateFormat.getInstance("yyyyMMdd").format(now).toInt
-    val startTimeMills = now - (hoursBefore * ONE_HOUR).toLong
-    val startTimeStr = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss").format(startTimeMills)
-    val startPartition = FastDateFormat.getInstance("yyyyMMdd").format(startTimeMills).toInt
-
-    val sql = s"SELECT distinct(auth_user_id) FROM dw.t_nginx_www_v2 WHERE toYYYYMMDD(time_iso8601) >= ${startPartition} AND toYYYYMMDD(time_iso8601) <= ${endPartition} AND time_iso8601 > '${startTimeStr}' AND auth_user_id!=0"
-    val urlQuery = CLICKHOUSE_HTTP_URL + urlEncode(sql)
-
-    val resp = Http(urlQuery).timeout(0, 0).asString.body
-    val userIdStrArray = resp.split("\n")
-    val userIds = new IntOpenHashBigSet(userIdStrArray.length)
-    for (str <- userIdStrArray) {
-      val userId = str.toInt
-      if (userId > 0) {
-        userIds.add(userId)
-      }
-    }
-    userIds
+    new IntOpenHashBigSet()
   }
 }

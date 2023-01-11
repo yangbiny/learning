@@ -8,27 +8,24 @@ import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods.{render, _}
 import org.json4s.{DefaultFormats, _}
 
-/**
- * 参考 spark 底层源码实现、自定义的 features
- */
 @SerialVersionUID(1L)
 object ModelRepo extends Serializable {
 
-  val PATH = "/rec/model"
+  private val PATH = "/rec/model"
 
-  val thisFormatVersion = "1.0"
+  private val thisFormatVersion = "1.0"
 
-  val thisClassName = "com.impassive.recommend.feed.ModelRepo"
+  private val thisClassName = "com.impassive.recommend.feed.ModelRepo"
 
-  def dataPath(path: String): String = new Path(path, "data").toUri.toString
+  private def dataPath(path: String): String = new Path(path, "data").toUri.toString
 
-  def metadataPath(path: String): String = new Path(path, "metadata").toUri.toString
+  private def metadataPath(path: String): String = new Path(path, "metadata").toUri.toString
 
-  def userPath(path: String): String = {
+  private def userPath(path: String): String = {
     new Path(dataPath(path), "user").toUri.toString
   }
 
-  def productPath(path: String): String = {
+  private def productPath(path: String): String = {
     new Path(dataPath(path), "product").toUri.toString
   }
 
@@ -62,7 +59,7 @@ object ModelRepo extends Serializable {
    *
    * @return (class name, version, metadata)
    */
-  def loadMetadata(sc: SparkContext, path: String): (String, String, JValue) = {
+  private def loadMetadata(sc: SparkContext, path: String): (String, String, JValue) = {
     implicit val formats = DefaultFormats
     val metadata = parse(sc.textFile(metadataPath(path)).first())
     val clazz = (metadata \ "class").extract[String]
