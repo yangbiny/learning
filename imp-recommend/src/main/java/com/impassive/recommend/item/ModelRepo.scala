@@ -60,7 +60,7 @@ object ModelRepo extends Serializable {
    * @return (class name, version, metadata)
    */
   private def loadMetadata(sc: SparkContext, path: String): (String, String, JValue) = {
-    implicit val formats = DefaultFormats
+    implicit val formats: DefaultFormats.type = DefaultFormats
     val metadata = parse(sc.textFile(metadataPath(path)).first())
     val clazz = (metadata \ "class").extract[String]
     val version = (metadata \ "version").extract[String]
@@ -70,7 +70,7 @@ object ModelRepo extends Serializable {
   def load(sc: SparkContext,
            spark: SparkSession
           ): (RDD[(Int, Array[Double])], RDD[(Int, Array[Double])], Int) = {
-    implicit val formats = DefaultFormats
+    implicit val formats: DefaultFormats.type = DefaultFormats
     val (className, formatVersion, metadata) = loadMetadata(sc, PATH)
     assert(className == thisClassName)
     assert(formatVersion == thisFormatVersion)

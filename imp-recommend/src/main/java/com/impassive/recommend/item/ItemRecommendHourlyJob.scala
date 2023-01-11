@@ -1,6 +1,6 @@
 package com.impassive.recommend.item
 
-import com.impassive.recommend.common.{KafkaDataItem, SimpleLogTools}
+import com.impassive.recommend.common.KafkaDataItem
 import org.apache.spark.SparkConf
 import org.apache.spark.mllib.recommendation.Rating
 import org.apache.spark.sql.SparkSession
@@ -10,7 +10,6 @@ import org.apache.spark.sql.SparkSession
  */
 object ItemRecommendHourlyJob {
 
-  val LOGGER_NAME = "com.impassive.recommend.item.ItemRecommendHourlyJob"
 
   def initConf(): SparkConf = {
     val conf = new SparkConf().setAppName("FeedRecommendHourlyJob")
