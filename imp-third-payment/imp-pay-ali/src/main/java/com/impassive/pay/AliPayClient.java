@@ -7,15 +7,20 @@ import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.domain.AlipayTradeAppPayModel;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.api.request.AlipayTradeAppPayRequest;
+import com.alipay.api.request.AlipayTradePayRequest;
 import com.alipay.api.request.AlipayTradeQueryRequest;
 import com.alipay.api.response.AlipayTradeAppPayResponse;
+import com.alipay.api.response.AlipayTradePayResponse;
 import com.alipay.api.response.AlipayTradeQueryResponse;
+import com.impassive.pay.cmd.ApplyNewPaymentCmd;
 import com.impassive.pay.cmd.CreatePaySignCmd;
 import com.impassive.pay.entity.AliConstant;
+import com.impassive.pay.entity.AliProductCode;
 import com.impassive.pay.entity.AliTradeStatus;
 import com.impassive.pay.entity.NotifyInfo;
 import com.impassive.pay.exception.ApplySignException;
 import com.impassive.pay.result.AliTradeInfo;
+import com.impassive.pay.tools.JsonTools;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -121,6 +126,36 @@ public class AliPayClient {
     return queryTradeInfo(notifyInfo.paymentNo());
   }
 
+  private AliTradeInfo executePayment(ApplyNewPaymentCmd cmd) {
+    try {
+      AlipayTradePayRequest request = new AlipayTradePayRequest();
+      JSONObject bizContent = new JSONObject();
+      bizContent.put("out_trade_no", cmd.getPaymentNo());
+      bizContent.put("total_amount", toAliAmount(cmd.getTotalAmount().asFen()));
+      bizContent.put("subject", cmd.getInventoryName());
+      bizContent.put("product_code", AliProductCode.CYCLE_PAY_AUTH.getValue());
+      // 签约信息
+      JSONObject agreementParams = new JSONObject();
+      agreementParams.put("agreement_no", cmd.getAgreementNo());
+      bizContent.put("agreement_params", agreementParams);
+      request.setBizContent(bizContent.toString());
+      AlipayTradePayResponse alipayTradePayResponse = alipayClient.execute(request);
+      if (alipayTradePayResponse.isSuccess()) {
+        // 收据
+        String body = alipayTradePayResponse.getBody();
+        log.info("Trade success, req:{}, body: {}", JsonTools.toJson(cmd), body);
+      } else {
+        // 这里参考 错误状态码
+        String subCode = alipayTradePayResponse.getSubCode();
+        String subMsg = alipayTradePayResponse.getSubMsg();
+        log.error("Trade pay failed, cmd:{} , subCode: {}, subMsg:{}", cmd, subCode, subMsg);
+      }
+      return queryTradeInfo(cmd.getPaymentNo());
+    } catch (Exception e) {
+      log.error("TradePay exec failed cmd:{}, e:", cmd, e);
+      throw new RuntimeException(e);
+    }
+  }
 
 
 
