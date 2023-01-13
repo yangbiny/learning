@@ -24,3 +24,5 @@ include(':imp-third-payment:imp-pay-ali')
 include('imp-third-payment:imp-pay-core')
 include('imp-transaction')
 include('imp-recommend')
+include('imp-transaction:imp-seata')
+
