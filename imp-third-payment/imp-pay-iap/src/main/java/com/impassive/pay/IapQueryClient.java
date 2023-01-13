@@ -388,9 +388,10 @@ public class IapQueryClient {
           "iss": "%s",  "iat": %s,
           "exp": %s,
           "aud": "appstoreconnect-v1",
-          "bid": ""
+          "bid": "%s"
+          
         }
-        """, iapProperties.getIssId(), epochSecond, epochSecond + 5 * 60);
+        """, iapProperties.getIssId(), epochSecond, epochSecond + 5 * 60, iapProperties.getBid());
     return Jwts.builder()
         .setHeaderParam("alg", "ES256")
         .setHeaderParam("kid", iapProperties.getKeyId())

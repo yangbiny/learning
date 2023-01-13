@@ -6,6 +6,8 @@ import lombok.Getter;
 @Data
 public class IapProperties {
 
+  private String bid;
+
   private String g3Root;
 
   private String password;
@@ -15,4 +17,5 @@ public class IapProperties {
   private String keyId;
 
   private String privateKey;
+
 }
