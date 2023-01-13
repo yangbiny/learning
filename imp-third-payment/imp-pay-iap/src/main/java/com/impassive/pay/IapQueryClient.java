@@ -382,7 +382,6 @@ public class IapQueryClient {
 
   private String generateSign() {
     long epochSecond = Instant.now().getEpochSecond();
-    // TODO
     String sign = String.format("""
         {
           "iss": "%s",  "iat": %s,
