@@ -1,17 +1,23 @@
 package com.impassive.pay;
 
+import static com.impassive.pay.entity.AliConstant.PERSONAL_PRODUCT_CODE;
+import static com.impassive.pay.entity.AliConstant.SIGN_SCENE;
+
 import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayConfig;
 import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.domain.AlipayTradeAppPayModel;
+import com.alipay.api.domain.AlipayUserAgreementQueryModel;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.api.request.AlipayTradeAppPayRequest;
 import com.alipay.api.request.AlipayTradePayRequest;
 import com.alipay.api.request.AlipayTradeQueryRequest;
+import com.alipay.api.request.AlipayUserAgreementQueryRequest;
 import com.alipay.api.response.AlipayTradeAppPayResponse;
 import com.alipay.api.response.AlipayTradePayResponse;
 import com.alipay.api.response.AlipayTradeQueryResponse;
+import com.alipay.api.response.AlipayUserAgreementQueryResponse;
 import com.impassive.pay.cmd.ApplyNewPaymentCmd;
 import com.impassive.pay.cmd.CreatePaySignCmd;
 import com.impassive.pay.entity.AliConstant;
@@ -19,6 +25,7 @@ import com.impassive.pay.entity.AliProductCode;
 import com.impassive.pay.entity.AliTradeStatus;
 import com.impassive.pay.entity.NotifyInfo;
 import com.impassive.pay.exception.ApplySignException;
+import com.impassive.pay.result.AliSubResult;
 import com.impassive.pay.result.AliTradeInfo;
 import com.impassive.pay.tools.JsonTools;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +54,12 @@ public class AliPayClient {
     this.alipayClient = new DefaultAlipayClient(config);
   }
 
+  /**
+   * 申请 支付签名
+   *
+   * @param createPaySignCmd 申请 支付签名的参数
+   * @return 签名信息
+   */
   public String applyPaymentSign(CreatePaySignCmd createPaySignCmd) {
     if (createPaySignCmd == null || createPaySignCmd.checkIsIllegal()) {
       throw new IllegalArgumentException("apply sign param is illegal");
@@ -69,6 +82,12 @@ public class AliPayClient {
     }
   }
 
+  /**
+   * 查询 交易信息
+   *
+   * @param paymentNo 申请 签名时传入的 支付ID或者订单ID一类
+   * @return 交易信息
+   */
   public AliTradeInfo queryTradeInfo(String paymentNo) {
     try {
       AlipayTradeQueryRequest request = new AlipayTradeQueryRequest();
@@ -94,39 +113,43 @@ public class AliPayClient {
     }
   }
 
+  /**
+   * 解析 ali支付 的 服务端回调结果
+   *
+   * @param body 全部信息
+   * @return 服务端 回调的交易结果
+   */
   public AliTradeInfo parseAliServicePayCallback(String body) {
-    if (StringUtils.isEmpty(body)) {
-      log.error("notifyType is null : {}", body);
-      throw new IllegalArgumentException("Ali 通知类型不能为空");
-    }
-    // 1. 解析返回值
-    NotifyInfo notifyInfo = NotifyInfo.fromJson(body);
-    if (notifyInfo == null) {
-      log.error("parse ali callback has error : {}", body);
-      throw new RuntimeException("解析 支付宝 回调通知失败");
-    }
-    // 2. 验证返回值
-    try {
-      boolean signVerified = AlipaySignature.rsaCheckV1(
-          notifyInfo.getParams(),
-          aliPayProperties.getAliPublicKey(),
-          AliConstant.CHARSET,
-          AliConstant.SIGN_TYPE
-      );
-      if (!signVerified) {
-        log.error("sign verified has failed : {}", body);
-        throw new IllegalStateException("验证签名失败");
-      }
-    } catch (Exception e) {
-      log.error("sign verified has failed : {}", body);
-      throw new IllegalStateException("验证签名失败");
-    }
-
+    NotifyInfo notifyInfo = checkAndConvertToNotifyInfo(body);
     // 3. 验证签名通过，处理回调
     return queryTradeInfo(notifyInfo.paymentNo());
   }
 
-  private AliTradeInfo executePayment(ApplyNewPaymentCmd cmd) {
+  /**
+   * 解析 ali签约 服务端回调
+   *
+   * @param body 回调信息
+   * @return Ali签约信息
+   */
+  public AliSubResult parseAliSubscribeCallback(String body) {
+    NotifyInfo notifyInfo = checkAndConvertToNotifyInfo(body);
+    try {
+      AlipayUserAgreementQueryResponse response = queryUserAgreementInfo(
+          notifyInfo.ourAgreementNo());
+      return convert(response);
+    } catch (Exception e) {
+      log.error("parse ali callback has error : {}", notifyInfo);
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * 申请 支付宝付款
+   *
+   * @param cmd 申请参数
+   * @return 支付结果
+   */
+  public AliTradeInfo executePayment(ApplyNewPaymentCmd cmd) {
     try {
       AlipayTradePayRequest request = new AlipayTradePayRequest();
       JSONObject bizContent = new JSONObject();
@@ -160,6 +183,74 @@ public class AliPayClient {
 
 
   /* ========================================= */
+
+  private AliSubResult convert(AlipayUserAgreementQueryResponse response) {
+    AliSubResult aliSubResult = new AliSubResult();
+    aliSubResult.setAgreementNo(response.getAgreementNo());
+    aliSubResult.setAlipayLogonId(response.getAlipayLogonId());
+    aliSubResult.setExternalAgreementNo(response.getExternalAgreementNo());
+    aliSubResult.setExternalLogonId(response.getExternalLogonId());
+    aliSubResult.setInvalidTime(response.getInvalidTime());
+    aliSubResult.setLastDeductTime(response.getLastDeductTime());
+    aliSubResult.setNextDeductTime(response.getNextDeductTime());
+    aliSubResult.setPersonalProductCode(response.getPersonalProductCode());
+    aliSubResult.setPricipalType(response.getPricipalType());
+    aliSubResult.setPrincipalId(response.getPrincipalId());
+    aliSubResult.setPrincipalOpenId(response.getPrincipalOpenId());
+    aliSubResult.setSignScene(response.getSignScene());
+    aliSubResult.setSignTime(response.getSignTime());
+    aliSubResult.setSingleQuota(response.getSingleQuota());
+    aliSubResult.setStatus(response.getStatus());
+    aliSubResult.setThirdPartyType(response.getThirdPartyType());
+    aliSubResult.setValidTime(response.getValidTime());
+    return aliSubResult;
+  }
+
+  private AlipayUserAgreementQueryResponse queryUserAgreementInfo(String ourAgreementNo) {
+    try {
+      AlipayUserAgreementQueryRequest request = new AlipayUserAgreementQueryRequest();
+      AlipayUserAgreementQueryModel model = new AlipayUserAgreementQueryModel();
+      model.setExternalAgreementNo(ourAgreementNo);
+      model.setPersonalProductCode(PERSONAL_PRODUCT_CODE);
+      model.setSignScene(SIGN_SCENE);
+      request.setBizModel(model);
+      return alipayClient.execute(request);
+    } catch (Exception e) {
+      log.error("FindUserAgreement error, userId:{}, e:", ourAgreementNo, e);
+      throw new RuntimeException("查询用户协议发生错误");
+    }
+  }
+
+
+  private NotifyInfo checkAndConvertToNotifyInfo(String body) {
+    if (StringUtils.isEmpty(body)) {
+      log.error("notifyType is null : {}", body);
+      throw new IllegalArgumentException("Ali 通知类型不能为空");
+    }
+    // 1. 解析返回值
+    NotifyInfo notifyInfo = NotifyInfo.fromJson(body);
+    if (notifyInfo == null) {
+      log.error("parse ali callback has error : {}", body);
+      throw new RuntimeException("解析 支付宝 回调通知失败");
+    }
+    // 2. 验证返回值
+    try {
+      boolean signVerified = AlipaySignature.rsaCheckV1(
+          notifyInfo.getParams(),
+          aliPayProperties.getAliPublicKey(),
+          AliConstant.CHARSET,
+          AliConstant.SIGN_TYPE
+      );
+      if (!signVerified) {
+        log.error("sign verified has failed : {}", body);
+        throw new IllegalStateException("验证签名失败");
+      }
+    } catch (Exception e) {
+      log.error("sign verified has failed : {}", body);
+      throw new IllegalStateException("验证签名失败");
+    }
+    return notifyInfo;
+  }
 
   private AlipayTradeAppPayModel buildOnceRequest(CreatePaySignCmd createPaySignCmd) {
     AlipayTradeAppPayModel model = new AlipayTradeAppPayModel();

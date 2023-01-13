@@ -31,4 +31,8 @@ public class NotifyInfo {
     return this.params.get("out_trade_no");
   }
 
+  public String ourAgreementNo() {
+    return this.params.get("external_agreement_no");
+  }
+
 }
