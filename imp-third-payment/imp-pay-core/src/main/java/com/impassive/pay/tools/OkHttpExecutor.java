@@ -13,6 +13,7 @@ import okhttp3.Request.Builder;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -26,6 +27,21 @@ public class OkHttpExecutor {
     this.httpClient = httpClient;
   }
 
+  public HttpExecuteResult execute(String url, String method, String requestBody, Headers header) {
+    RequestBody body = null;
+    if (StringUtils.equals(method, "POST") && StringUtils.isNotEmpty(requestBody)) {
+      body = RequestBody.create(
+          MediaType.parse("application/json; charset=utf-8"),
+          requestBody
+      );
+    }
+
+    Request request = new Builder().url(url)
+        .method(method, body)
+        .headers(header)
+        .build();
+
+  }
 
   public HttpExecuteResult executeWithPost(String url, String body) {
     Request request = new Builder()

@@ -25,4 +25,6 @@ include('imp-third-payment:imp-pay-core')
 include('imp-transaction')
 include('imp-recommend')
 include('imp-transaction:imp-seata')
+include 'imp-third-payment:imp-pay-wechat'
+findProject(':imp-third-payment:imp-pay-wechat')?.name = 'imp-pay-wechat'
 
