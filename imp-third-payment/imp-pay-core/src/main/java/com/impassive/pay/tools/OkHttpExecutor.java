@@ -36,10 +36,13 @@ public class OkHttpExecutor {
       );
     }
 
-    Request request = new Builder().url(url)
+    Request request = new Builder()
+        .url(url)
         .method(method, body)
         .headers(header)
         .build();
+
+    return buildResult(request);
 
   }
 
