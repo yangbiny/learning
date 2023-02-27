@@ -15,11 +15,18 @@ version '1.0-SNAPSHOT'
 
 dependencies {
     implementation 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
     implementation 'org.slf4j:slf4j-api:2.0.6'
     implementation 'ch.qos.logback:logback-core:1.4.5'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.4.2'
-    implementation project(':imp-rpc:imp-rpc-common')
-    testImplementation 'junit:junit:4.13.2'
+    implementation project(':rpc:rpc-common')
+    implementation project(':rpc:rpc-remote')
+    implementation 'org.apache.zookeeper:zookeeper:3.8.0'
+    implementation 'org.apache.curator:curator-client:5.3.0'
+    implementation 'org.apache.curator:curator-framework:5.3.0'
 }
 
-description = 'imp-rpc-remoting'
+description = 'rpc-core'
+
+repositories {
+    mavenCentral()
+}

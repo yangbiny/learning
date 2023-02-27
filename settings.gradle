@@ -8,24 +8,24 @@
  * This project uses @Incubating APIs which are subject to change.
  */
 
-rootProject.name = 'imp-learning'
+rootProject.name = 'learning'
 
-include(':imp-jpa')
-include(':imp-kotlin')
-include('imp-rpc:imp-rpc-remote')
-include('imp-rpc:imp-rpc-remoting')
-include('imp-rpc:imp-rpc-core')
-include('imp-rpc:imp-rpc-config')
-include('imp-rpc:imp-rpc-common')
-include('imp-third-payment')
-include('imp-cache')
-include('imp-third-payment:imp-pay-iap')
-include(':imp-third-payment:imp-pay-ali')
-include('imp-third-payment:imp-pay-core')
-include('imp-third-payment:imp-pay-wechat')
-include('imp-transaction')
-include('imp-recommend')
-include('imp-transaction:imp-seata')
-include('imp-netty')
+include(':jpa')
+include(':kotlin')
+include('rpc:rpc-remote')
+include('rpc:rpc-remoting')
+include('rpc:rpc-core')
+include('rpc:rpc-config')
+include('rpc:rpc-common')
+include('third-payment')
+include('cache')
+include('third-payment:pay-iap')
+include(':third-payment:pay-ali')
+include('third-payment:pay-core')
+include('third-payment:pay-wechat')
+include('transaction')
+include('recommend')
+include('transaction:seata')
+include('netty')
 
 
