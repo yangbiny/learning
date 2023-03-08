@@ -27,5 +27,5 @@ include('transaction')
 include('recommend')
 include('transaction:seata')
 include('netty')
-
+include 'algorithm'
 
