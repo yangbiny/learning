@@ -12,6 +12,10 @@ tasks.register("showProjects") {
     }
 }
 
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
 wrapper() {
     gradleVersion = '7.5.1'
 }
