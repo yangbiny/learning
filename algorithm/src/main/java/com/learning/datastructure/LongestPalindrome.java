@@ -17,15 +17,16 @@ public class LongestPalindrome {
     char[] chars = s.toCharArray();
 
     boolean[][] dp = new boolean[chars.length][chars.length];
-    for (int i = 0; i < chars.length; i++) {
-      dp[i][i] = true;
-    }
 
     int maxLength = 1;
     int beginIndex = 0;
 
     for (int i = 1; i < chars.length; i++) {
       for (int j = i - 1; j >= 0; j--) {
+
+        if (i == j){
+          dp[i][i] = true;
+        }
 
         // 如果 当前的两个字符不想等，则说明，从 i 到 j 一定不是 回文
         if (chars[i] != chars[j]) {
