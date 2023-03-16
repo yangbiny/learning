@@ -11,6 +11,7 @@ import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketAddress;
 
 /**
  * @author impassive
@@ -63,13 +64,15 @@ public class SocketService {
 
     BufferedReader brr = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-    PrintStream stream = new PrintStream(socket.getOutputStream());
+    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
     int n = 0;
     do {
 
       String line = System.currentTimeMillis() + ": client";
-      stream.println(line);
+      writer.write(line);
+      writer.newLine();
+      writer.flush();
 
       String response = brr.readLine();
       System.err.println("客户端 read : " + response);
@@ -94,18 +97,20 @@ public class SocketService {
         InputStream inputStream = socket.getInputStream();
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
 
-        PrintStream printStream = new PrintStream(socket.getOutputStream());
+        BufferedWriter writer = new BufferedWriter(
+            new OutputStreamWriter(socket.getOutputStream()));
 
         do {
-          String line = bufferedReader.readLine();
-          if (line == null){
+          if (socket.isClosed()) {
             break;
           }
+          String line = bufferedReader.readLine();
           System.err.println("服务器 read : " + line);
 
           String s = System.currentTimeMillis() + ": service";
-          printStream.println(s);
-
+          writer.write(s);
+          writer.newLine();
+          writer.flush();
         } while (true);
 
       } catch (Exception e) {
