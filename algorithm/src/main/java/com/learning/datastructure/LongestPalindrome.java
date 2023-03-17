@@ -1,6 +1,7 @@
 package com.learning.datastructure;
 
-import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author impassive
@@ -9,8 +10,8 @@ public class LongestPalindrome {
 
   public static void main(String[] args) {
     LongestPalindrome longestPalindrome = new LongestPalindrome();
-    String babad = longestPalindrome.longestPalindrome("aacabdkacaa");
-    System.out.println(babad);
+    String text = longestPalindrome.longestPalindrome("aacabdkacaa");
+    System.out.println(text);
   }
 
   private String longestPalindrome(String s) {
@@ -24,7 +25,7 @@ public class LongestPalindrome {
     for (int i = 1; i < chars.length; i++) {
       for (int j = i - 1; j >= 0; j--) {
 
-        if (i == j){
+        if (i == j) {
           dp[i][i] = true;
         }
 

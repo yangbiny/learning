@@ -29,4 +29,6 @@ include('transaction:seata')
 include('netty')
 include 'algorithm'
 include 'socket'
+include 'transaction:spring-trasaction'
+findProject(':transaction:spring-trasaction')?.name = 'spring-trasaction'
 

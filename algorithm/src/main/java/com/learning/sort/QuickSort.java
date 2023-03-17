@@ -19,62 +19,76 @@ public class QuickSort {
     System.out.println(Arrays.toString(array2));
   }
 
-  // 循环的方式
-  private void sortWithWhile(int[] array, int begin, int end) {
-    Stack<List<Integer>> stack = new Stack<>();
-    stack.add(List.of(begin, end));
-    while (!stack.isEmpty()) {
-      List<Integer> pop = stack.pop();
-      Integer min = pop.get(0);
-      Integer max = pop.get(1);
-      if (min >= max) {
-        continue;
-      }
-      int index = part(array, min, max);
-      stack.add(List.of(min, index - 1));
-      stack.add(List.of(index + 1, max));
-    }
-
-  }
-
-  // 递归的方式
   private void sort(int[] array, int begin, int end) {
     if (begin >= end) {
       return;
     }
-    int index = part(array, begin, end);
-    sort(array, begin, index - 1);
-    sort(array, index + 1, end);
 
-  }
+    int temp = array[begin];
+    int index = begin;
+    int min = begin;
+    int max = end;
 
-  private int part(int[] array, int min, int max) {
-    int index = min;
-    int temp = array[index];
     while (min < max) {
 
-      while (max > min && array[max] > temp) {
+      while (array[max] >= temp && max > min) {
         max--;
       }
-
-      swap(array, index, max);
+      array[index] = array[max];
       index = max;
 
-      while (min < max && array[min] <= temp) {
+      while (array[min] < temp && min < max) {
         min++;
       }
-      swap(array, index, min);
+      array[index] = array[min];
       index = min;
+    }
+
+    array[index] = temp;
+    sort(array, begin, index - 1);
+    sort(array, index + 1, end);
+  }
+
+
+  private void sortWithWhile(int[] array, int begin, int end) {
+
+    Stack<List<Integer>> stack = new Stack<>();
+    stack.add(List.of(begin, end));
+
+    while (!stack.isEmpty()) {
+      List<Integer> pop = stack.pop();
+      Integer min = pop.get(0);
+      Integer max = pop.get(1);
+
+      if (min >= max) {
+        continue;
+      }
+
+      int temp = array[min];
+      int index = min;
+      int min1 = min;
+      int max1 = max;
+
+      while (min < max) {
+
+        while (max > min && array[max] >= temp) {
+          max--;
+        }
+        array[index] = array[max];
+        index = max;
+
+        while (min < max && array[min] < temp) {
+          min++;
+        }
+        array[index] = array[min];
+        index = min;
+      }
+      array[index] = temp;
+      stack.add(List.of(min1, index - 1));
+      stack.add(List.of(index + 1, max1));
 
     }
-    return index;
-  }
 
-  private void swap(int[] array, int idx1, int idx2) {
-    int temp = array[idx1];
-    array[idx1] = array[idx2];
-    array[idx2] = temp;
   }
-
 
 }
