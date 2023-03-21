@@ -26,12 +26,15 @@ public class LowestCommonAncestor {
 
     TreeNode left = lowestCommonAncestor(root.left, p, q);
     TreeNode right = lowestCommonAncestor(root.right, p, q);
+    // 如果左子树 为空，说明都在 右子树，返回右子数的结果
     if (left == null) {
       return right;
     }
+    // 与上面相反
     if (right == null) {
       return left;
     }
+    // 都不为空，说明在两边，返回根节点
     return root;
   }
 }
