@@ -11,7 +11,7 @@ repositories {
 
 dependencies {
 
-    implementation project(":imp-third-payment:imp-pay-core")
+    implementation project(":third-payment:imp-pay-core")
 
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.14.1'
     implementation 'com.github.wechatpay-apiv3:wechatpay-apache-httpclient:0.2.2'
