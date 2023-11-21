@@ -1,5 +1,8 @@
 package com.learning.datastructure;
 
+import java.util.List;
+import java.util.Stack;
+
 /**
  * @author impassive
  */
@@ -7,6 +10,9 @@ public class RevertLink {
 
   public static void main(String[] args) {
     RevertLink link = new RevertLink();
+
+    ListNode head1 = new ListNode(1, new ListNode(2, new ListNode(3,new ListNode(4))));
+    link.reorderList(head1);
 
     ListNode node = new ListNode(1,
         new ListNode(2, new ListNode(3, new ListNode(4, new ListNode(5)))));
@@ -20,6 +26,38 @@ public class RevertLink {
     System.out.println(node2);
   }
 
+  public void reorderList(ListNode head) {
+    int n = 0;
+    ListNode tmp = head;
+    while (tmp != null) {
+      n += 1;
+      tmp = tmp.next;
+    }
+    tmp = head;
+    Stack<ListNode> nodes = new Stack<>();
+    int index = 1;
+    int max = n % 2 == 0 ? n / 2 : n / 2 + 1;
+    while (tmp != null) {
+      ListNode x = tmp.next;
+      index++;
+      if (index > max) {
+        tmp.next = null;
+        if (index - 1 > max) {
+          nodes.push(tmp);
+        }
+      }
+      tmp = x;
+    }
+
+    tmp = head;
+    while (!nodes.isEmpty()) {
+      ListNode pop = nodes.pop();
+      pop.next = tmp.next;
+      tmp.next = pop;
+      tmp = tmp.next.next;
+    }
+
+  }
 
   public boolean hasCycle(ListNode head) {
     if (head == null || head.next == null) {
