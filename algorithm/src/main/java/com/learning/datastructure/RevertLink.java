@@ -21,6 +21,24 @@ public class RevertLink {
   }
 
 
+  public boolean hasCycle(ListNode head) {
+    if (head == null || head.next == null) {
+      return false;
+    }
+    ListNode fast = head.next.next;
+    ListNode slow = head;
+
+    while (slow != fast) {
+      if (slow == null || fast == null || fast.next == null) {
+        return false;
+      }
+      slow = slow.next;
+      fast = fast.next.next;
+    }
+    return true;
+  }
+
+
   public ListNode deleteDuplicates(ListNode head) {
     if (head.next == null) {
       return head;
