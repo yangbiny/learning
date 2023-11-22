@@ -11,7 +11,15 @@ public class RevertLink {
   public static void main(String[] args) {
     RevertLink link = new RevertLink();
 
-    ListNode head1 = new ListNode(1, new ListNode(2, new ListNode(3,new ListNode(4))));
+    ListNode next = new ListNode(1);
+    ListNode next1 = new ListNode(2);
+    next.next = next1;
+    next1.next = next;
+    ListNode detectCycle = new ListNode(3, next);
+
+    link.detectCycle(next);
+
+    ListNode head1 = new ListNode(1, new ListNode(2, new ListNode(3, new ListNode(4))));
     link.reorderList(head1);
 
     ListNode node = new ListNode(1,
@@ -24,6 +32,25 @@ public class RevertLink {
         new ListNode(1, new ListNode(1, new ListNode(1, new ListNode(1)))));
     ListNode node2 = link.deleteDuplicates(head);
     System.out.println(node2);
+  }
+
+  public ListNode detectCycle(ListNode head) {
+    if (head == null || head.next == null) {
+      return null;
+    }
+
+    ListNode slow = head;
+    ListNode fast = head.next.next;
+
+    while (slow != null && fast != null) {
+      if (slow == fast) {
+        return slow;
+      }
+      slow = slow.next;
+      fast = fast.next;
+    }
+
+    return null;
   }
 
   public void reorderList(ListNode head) {
