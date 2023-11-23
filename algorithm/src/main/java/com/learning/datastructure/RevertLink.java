@@ -90,6 +90,50 @@ public class RevertLink {
     System.out.println(listNode);
   }
 
+  public ListNode mergeKLists(ListNode[] lists) {
+    if (lists.length == 0) {
+      return null;
+    }
+    if (lists.length == 1) {
+      return lists[0];
+    }
+
+    ListNode result = merge(lists[0], lists[1]);
+
+    for (int i = 2; i < lists.length; i++) {
+      result = merge(result, lists[i]);
+    }
+    return result;
+  }
+
+  private ListNode merge(ListNode first, ListNode second) {
+    ListNode result = new ListNode(-1);
+
+    ListNode tmp = result;
+    while (first != null && second != null) {
+
+      if (first.val < second.val) {
+        ListNode next = first.next;
+        first.next = null;
+        tmp.next = first;
+        first = next;
+      } else {
+        ListNode next = second.next;
+        second.next = null;
+        tmp.next = second;
+        second = next;
+      }
+      tmp = tmp.next;
+    }
+
+    if (first != null) {
+      tmp.next = first;
+    }
+    if (second != null) {
+      tmp.next = second;
+    }
+    return result.next;
+  }
 
   public ListNode reverseKGroup(ListNode head, int k) {
     ListNode result = new ListNode(-1);
