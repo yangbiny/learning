@@ -11,6 +11,8 @@ public class RevertLink {
   public static void main(String[] args) {
     RevertLink link = new RevertLink();
 
+    reverseKGroup(link);
+
     removeNthFormEnd(link);
 
     detectCycle(link);
@@ -20,6 +22,19 @@ public class RevertLink {
     reverseBetween(link);
 
     deleteDuplicates(link);
+  }
+
+  private static void reverseKGroup(RevertLink link) {
+    ListNode head = new ListNode(
+        1,
+        new ListNode(2,
+            new ListNode(3,
+                new ListNode(4,
+                    new ListNode(5))))
+    );
+
+    ListNode listNode = link.reverseKGroup(head, 3);
+    System.out.println(listNode);
   }
 
   private static void removeNthFormEnd(RevertLink link) {
@@ -74,6 +89,42 @@ public class RevertLink {
     ListNode listNode = link.detectCycle(next3);
     System.out.println(listNode);
   }
+
+
+  public ListNode reverseKGroup(ListNode head, int k) {
+    ListNode result = new ListNode(-1);
+
+    Stack<ListNode> stack = new Stack<>();
+    ListNode tmp = result;
+    while (head != null) {
+      int cnt = 0;
+
+      ListNode ptr = head;
+      while (ptr != null && cnt < k) {
+        ptr = ptr.next;
+        cnt++;
+      }
+      if (cnt == k) {
+        while (cnt > 0 && head != null) {
+          ListNode next = head.next;
+          head.next = null;
+          stack.push(head);
+          head = next;
+          cnt--;
+        }
+        while (!stack.isEmpty()) {
+          tmp.next = stack.pop();
+          tmp = tmp.next;
+        }
+      } else {
+        tmp.next = head;
+        break;
+      }
+    }
+
+    return result.next;
+  }
+
 
   public ListNode removeNthFromEnd(ListNode head, int n) {
     if (head == null) {
