@@ -11,6 +11,56 @@ public class RevertLink {
   public static void main(String[] args) {
     RevertLink link = new RevertLink();
 
+    removeNthFormEnd(link);
+
+    detectCycle(link);
+
+    recordList(link);
+
+    reverseBetween(link);
+
+    deleteDuplicates(link);
+  }
+
+  private static void removeNthFormEnd(RevertLink link) {
+    ListNode head = new ListNode(
+        10,
+        new ListNode(9,
+            new ListNode(8,
+                new ListNode(7,
+                    new ListNode(6,
+                        new ListNode(5,
+                            new ListNode(4,
+                                new ListNode(3,
+                                    new ListNode(2,
+                                        new ListNode(1)))))))))
+    );
+
+    ListNode listNode = link.removeNthFromEnd(head, 2);
+    System.out.println(listNode);
+  }
+
+  private static void deleteDuplicates(RevertLink link) {
+    ListNode head = new ListNode(1,
+        new ListNode(1, new ListNode(1, new ListNode(1, new ListNode(1)))));
+    ListNode node2 = link.deleteDuplicates(head);
+    System.out.println(node2);
+  }
+
+  private static void reverseBetween(RevertLink link) {
+    ListNode node = new ListNode(1,
+        new ListNode(2, new ListNode(3, new ListNode(4, new ListNode(5)))));
+
+    ListNode node1 = link.reverseBetween(node, 2, 4);
+    System.out.println(node1);
+  }
+
+  private static void recordList(RevertLink link) {
+    ListNode head1 = new ListNode(1, new ListNode(2, new ListNode(3, new ListNode(4))));
+    link.reorderList(head1);
+  }
+
+  private static void detectCycle(RevertLink link) {
     ListNode next3 = new ListNode(3);
     ListNode next2 = new ListNode(2);
     ListNode next0 = new ListNode(0);
@@ -23,21 +73,37 @@ public class RevertLink {
 
     ListNode listNode = link.detectCycle(next3);
     System.out.println(listNode);
-
-    ListNode head1 = new ListNode(1, new ListNode(2, new ListNode(3, new ListNode(4))));
-    link.reorderList(head1);
-
-    ListNode node = new ListNode(1,
-        new ListNode(2, new ListNode(3, new ListNode(4, new ListNode(5)))));
-
-    ListNode node1 = link.reverseBetween(node, 2, 4);
-    System.out.println(node1);
-
-    ListNode head = new ListNode(1,
-        new ListNode(1, new ListNode(1, new ListNode(1, new ListNode(1)))));
-    ListNode node2 = link.deleteDuplicates(head);
-    System.out.println(node2);
   }
+
+  public ListNode removeNthFromEnd(ListNode head, int n) {
+    if (head == null) {
+      return null;
+    }
+    ListNode tmp = head;
+    int cnt = 0;
+    while (tmp != null) {
+      cnt++;
+      tmp = tmp.next;
+    }
+    int index = cnt - n;
+    if (index == 0) {
+      return head.next;
+    }
+
+    tmp = head;
+    while (index > 0) {
+      ListNode next = tmp.next;
+      if (index == 1) {
+        tmp.next = next.next;
+        break;
+      }
+      tmp = next;
+      index--;
+    }
+
+    return head;
+  }
+
 
   public ListNode detectCycle(ListNode head) {
     if (head == null) {
@@ -64,7 +130,6 @@ public class RevertLink {
 
     return null;
   }
-
 
 
   public ListNode detectCycle1(ListNode head) {
