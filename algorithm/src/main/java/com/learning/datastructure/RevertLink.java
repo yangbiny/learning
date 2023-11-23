@@ -11,13 +11,18 @@ public class RevertLink {
   public static void main(String[] args) {
     RevertLink link = new RevertLink();
 
-    ListNode next = new ListNode(1);
-    ListNode next1 = new ListNode(2);
-    next.next = next1;
-    next1.next = next;
-    ListNode detectCycle = new ListNode(3, next);
+    ListNode next3 = new ListNode(3);
+    ListNode next2 = new ListNode(2);
+    ListNode next0 = new ListNode(0);
+    ListNode next_4 = new ListNode(-4);
 
-    link.detectCycle(next);
+    next3.next = next2;
+    next2.next = next0;
+    next0.next = next_4;
+    next_4.next = next2;
+
+    ListNode listNode = link.detectCycle(next3);
+    System.out.println(listNode);
 
     ListNode head1 = new ListNode(1, new ListNode(2, new ListNode(3, new ListNode(4))));
     link.reorderList(head1);
@@ -35,19 +40,54 @@ public class RevertLink {
   }
 
   public ListNode detectCycle(ListNode head) {
+    if (head == null) {
+      return null;
+    }
+    ListNode slow = head;
+    ListNode fast = head;
+
+    while (slow != null && fast != null) {
+      slow = slow.next;
+      if (fast.next == null) {
+        return null;
+      }
+      fast = fast.next.next;
+      if (slow == fast) {
+        ListNode ptr = head;
+        while (ptr != slow) {
+          ptr = ptr.next;
+          slow = slow.next;
+        }
+        return slow;
+      }
+    }
+
+    return null;
+  }
+
+
+
+  public ListNode detectCycle1(ListNode head) {
     if (head == null || head.next == null) {
       return null;
     }
-
     ListNode slow = head;
     ListNode fast = head.next.next;
 
     while (slow != null && fast != null) {
       if (slow == fast) {
+        ListNode ptr = head;
+        while (ptr != slow) {
+          ptr = ptr.next;
+          slow = slow.next;
+        }
         return slow;
       }
       slow = slow.next;
-      fast = fast.next;
+      if (fast.next == null) {
+        return null;
+      }
+      fast = fast.next.next;
     }
 
     return null;
