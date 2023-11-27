@@ -13,14 +13,27 @@ import java.util.concurrent.LinkedTransferQueue;
 public class TreeNodeSolution {
 
 
-  public List<Integer> preorderTraversal2(TreeNode root) {
-    ArrayList<Integer> result = new ArrayList<>();
+  public List<Integer> preorderTraversal(TreeNode root) {
+    if (root == null) {
+      return new ArrayList<>();
+    }
+
+    List<Integer> result = new ArrayList<>();
+    preOrder(root, result);
+
+    List<Integer> integers = preOrderWithWhile(root);
+    System.out.println(integers);
+    return result;
+  }
+
+  private List<Integer> preOrderWithWhile(TreeNode root) {
+    List<Integer> result = new ArrayList<>();
     if (root == null) {
       return result;
     }
+
     Stack<TreeNode> stack = new Stack<>();
     stack.push(root);
-
     while (!stack.isEmpty()) {
       TreeNode pop = stack.pop();
       result.add(pop.val);
@@ -35,25 +48,14 @@ public class TreeNodeSolution {
     return result;
   }
 
-
-  public List<Integer> preorderTraversal(TreeNode root) {
-    if (root == null) {
-      return null;
-    }
-
-    List<Integer> result = new ArrayList<>();
-    preorder(root.right, result);
-    return result;
-  }
-
-  private void preorder(TreeNode root, List<Integer> result) {
+  private void preOrder(TreeNode root, List<Integer> result) {
     if (root == null) {
       return;
     }
-    result.add(root.val);
 
-    preorder(root.left, result);
-    preorder(root.right, result);
+    result.add(root.val);
+    preOrder(root.left, result);
+    preOrder(root.right, result);
   }
 
 
