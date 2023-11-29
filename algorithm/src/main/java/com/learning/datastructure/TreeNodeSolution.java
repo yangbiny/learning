@@ -2,6 +2,7 @@ package com.learning.datastructure;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -13,6 +14,41 @@ import java.util.concurrent.LinkedTransferQueue;
  */
 public class TreeNodeSolution {
 
+  public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
+    List<List<Integer>> result = new LinkedList<>();
+    if (root == null) {
+      return result;
+    }
+    Queue<TreeNode> queue = new LinkedList<>();
+    queue.offer(root);
+
+    boolean fromLeft = true;
+    while (!queue.isEmpty()) {
+      int size = queue.size();
+      Deque<Integer> tmp = new LinkedList<>();
+      for (int i = 0; i < size; i++) {
+        TreeNode poll = queue.poll();
+        if (fromLeft) {
+          tmp.addLast(poll.val);
+        } else {
+          tmp.addFirst(poll.val);
+        }
+
+        if (poll.left != null) {
+          queue.offer(poll.left);
+        }
+        if (poll.right != null) {
+          queue.offer(poll.right);
+        }
+      }
+
+      result.add(new LinkedList<>(tmp));
+      fromLeft = !fromLeft;
+
+    }
+
+    return result;
+  }
 
   public List<Integer> preorderTraversal(TreeNode root) {
     if (root == null) {
@@ -58,7 +94,6 @@ public class TreeNodeSolution {
     preOrder(root.left, result);
     preOrder(root.right, result);
   }
-
 
   public List<List<Integer>> levelOrder(TreeNode root) {
     if (root == null) {
