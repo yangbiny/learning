@@ -1,15 +1,16 @@
 package com.learning.datastructure;
 
-import java.util.List;
 import java.util.Stack;
 
 /**
  * @author impassive
  */
-public class RevertLink {
+public class LinkSolution {
 
   public static void main(String[] args) {
-    RevertLink link = new RevertLink();
+    LinkSolution link = new LinkSolution();
+
+    addTwoNumbers(link);
 
     reverseKGroup(link);
 
@@ -24,7 +25,16 @@ public class RevertLink {
     deleteDuplicates(link);
   }
 
-  private static void reverseKGroup(RevertLink link) {
+  private static void addTwoNumbers(LinkSolution link) {
+    ListNode l1 = new ListNode(2, new ListNode(4, new ListNode(3,new ListNode(9))));
+    ListNode l2 = new ListNode(5, new ListNode(6, new ListNode(4)));
+
+    ListNode listNode = link.addTwoNumbers(l1, l2);
+    System.out.println(listNode);
+  }
+
+
+  private static void reverseKGroup(LinkSolution link) {
     ListNode head = new ListNode(
         1,
         new ListNode(2,
@@ -37,7 +47,7 @@ public class RevertLink {
     System.out.println(listNode);
   }
 
-  private static void removeNthFormEnd(RevertLink link) {
+  private static void removeNthFormEnd(LinkSolution link) {
     ListNode head = new ListNode(
         10,
         new ListNode(9,
@@ -55,14 +65,14 @@ public class RevertLink {
     System.out.println(listNode);
   }
 
-  private static void deleteDuplicates(RevertLink link) {
+  private static void deleteDuplicates(LinkSolution link) {
     ListNode head = new ListNode(1,
         new ListNode(1, new ListNode(1, new ListNode(1, new ListNode(1)))));
     ListNode node2 = link.deleteDuplicates(head);
     System.out.println(node2);
   }
 
-  private static void reverseBetween(RevertLink link) {
+  private static void reverseBetween(LinkSolution link) {
     ListNode node = new ListNode(1,
         new ListNode(2, new ListNode(3, new ListNode(4, new ListNode(5)))));
 
@@ -70,12 +80,12 @@ public class RevertLink {
     System.out.println(node1);
   }
 
-  private static void recordList(RevertLink link) {
+  private static void recordList(LinkSolution link) {
     ListNode head1 = new ListNode(1, new ListNode(2, new ListNode(3, new ListNode(4))));
     link.reorderList(head1);
   }
 
-  private static void detectCycle(RevertLink link) {
+  private static void detectCycle(LinkSolution link) {
     ListNode next3 = new ListNode(3);
     ListNode next2 = new ListNode(2);
     ListNode next0 = new ListNode(0);
@@ -88,6 +98,33 @@ public class RevertLink {
 
     ListNode listNode = link.detectCycle(next3);
     System.out.println(listNode);
+  }
+
+  public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+    ListNode result = new ListNode(-1);
+    ListNode tmp = result;
+
+    int value = 0;
+    while (l1 != null || l2 != null) {
+      int val = l1 != null ? l1.val : 0;
+      int val2 = l2 != null ? l2.val : 0;
+
+      int tp = val + val2 + value;
+      if (tp >= 10) {
+        tp = tp % 10;
+        value = 1;
+      } else {
+        value = 0;
+      }
+      tmp.next = new ListNode(tp);
+      tmp = tmp.next;
+      l1 = l1 != null ? l1.next : null;
+      l2 = l2 != null ? l2.next : null;
+    }
+    if (value > 0){
+      tmp.next = new ListNode(value);
+    }
+    return result.next;
   }
 
   public ListNode mergeKLists(ListNode[] lists) {
