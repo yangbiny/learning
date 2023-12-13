@@ -10,6 +10,9 @@ public class DynamicPrefix {
 
   public static void main(String[] args) {
 
+    int i = new DynamicPrefix().lengthOfLongestSubstring("bbbbb");
+    System.out.println(i);
+
     String multiply = new DynamicPrefix().multiply("5", "12");
     System.out.println(multiply);
 
@@ -21,6 +24,29 @@ public class DynamicPrefix {
     System.out.println(x);
   }
 
+  public int lengthOfLongestSubstring(String s) {
+    if (s.isEmpty()){
+      return 0;
+    }
+    String result = s.charAt(0) + "";
+    int startIndex = 0;
+    for (int i = 1; i < s.length(); i++) {
+      String tmp = s.substring(startIndex, i);
+      char ch = s.charAt(i);
+
+      int index = tmp.indexOf(ch);
+      if (index > -1) {
+        startIndex = s.indexOf(ch, startIndex) + 1;
+        i = startIndex;
+      } else {
+        tmp = s.substring(startIndex, i + 1);
+        if (tmp.length() > result.length()) {
+          result = tmp;
+        }
+      }
+    }
+    return result.length();
+  }
 
   public String multiply(String num1, String num2) {
     if ("0".equals(num1) || "0".equals(num2)) {
