@@ -10,6 +10,10 @@ public class DynamicPrefix {
 
   public static void main(String[] args) {
 
+    int[] maxSubArrayNums = {-2, 1, -3, 4, -1, 2, 1, -5, 4};
+    int result = new DynamicPrefix().maxSubArray(maxSubArrayNums);
+    System.out.println(result);
+
     int i = new DynamicPrefix().lengthOfLongestSubstring("bbbbb");
     System.out.println(i);
 
@@ -24,8 +28,20 @@ public class DynamicPrefix {
     System.out.println(x);
   }
 
+  public int maxSubArray(int[] nums) {
+    int n = nums[0];
+    int result = n;
+    for (int i = 1; i < nums.length; i++) {
+      n = Math.max(nums[i] + n, nums[i]);
+      if (n > result) {
+        result = n;
+      }
+    }
+    return result;
+  }
+
   public int lengthOfLongestSubstring(String s) {
-    if (s.isEmpty()){
+    if (s.isEmpty()) {
       return 0;
     }
     String result = s.charAt(0) + "";
