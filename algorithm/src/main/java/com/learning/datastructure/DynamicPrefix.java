@@ -10,6 +10,9 @@ public class DynamicPrefix {
 
   public static void main(String[] args) {
 
+    String resultStr = new DynamicPrefix().longestPalindrome("abbab");
+    System.out.println(resultStr);
+
     int[] maxSubArrayNums = {-2, 1, -3, 4, -1, 2, 1, -5, 4};
     int result = new DynamicPrefix().maxSubArray(maxSubArrayNums);
     System.out.println(result);
@@ -26,6 +29,39 @@ public class DynamicPrefix {
     int[] nums = {10, 9, 2, 5, 3, 7, 101, 18};
     int[] x = new DynamicPrefix().lengthOfLIS2(nums);
     System.out.println(x);
+  }
+
+  public String longestPalindrome(String s) {
+    boolean[][] dp = new boolean[s.length()][s.length()];
+    char[] charArray = s.toCharArray();
+    for (int i = 0; i < charArray.length; i++) {
+      dp[i][i] = true;
+    }
+
+    int begin;
+    int end;
+
+    String result = "";
+
+    for (int i = 0; i < charArray.length; i++) {
+      end = i + 1;
+      begin = i;
+      for (int j = i - 1; j >= 0; j--) {
+        if (j == i - 1) {
+          dp[j][i] = charArray[j] == charArray[i];
+        } else {
+          dp[j][i] = charArray[i] == charArray[j] && dp[j + 1][i - 1];
+        }
+        if (dp[j][i]) {
+          begin = j;
+        }
+      }
+      if (end - begin > result.length()) {
+        result = s.substring(begin, end);
+      }
+    }
+
+    return result;
   }
 
   public int maxSubArray(int[] nums) {
