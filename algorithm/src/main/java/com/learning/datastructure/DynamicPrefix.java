@@ -10,6 +10,9 @@ public class DynamicPrefix {
 
   public static void main(String[] args) {
 
+    int length = new DynamicPrefix().findLength(new int[]{1, 2, 3, 2, 1}, new int[]{1, 2, 3, 2, 1});
+    System.out.println(length);
+
     String resultStr = new DynamicPrefix().longestPalindrome("abbab");
     System.out.println(resultStr);
 
@@ -29,6 +32,35 @@ public class DynamicPrefix {
     int[] nums = {10, 9, 2, 5, 3, 7, 101, 18};
     int[] x = new DynamicPrefix().lengthOfLIS2(nums);
     System.out.println(x);
+  }
+
+  public int findLength(int[] nums1, int[] nums2) {
+    if (nums1.length == 0 || nums2.length == 0) {
+      return 0;
+    }
+
+    int[][] dp = new int[nums1.length][nums2.length];
+    for (int[] ints : dp) {
+      Arrays.fill(ints, 0);
+    }
+
+    int result = 0;
+    for (int i = 0; i < nums1.length; i++) {
+      for (int j = 0; j < nums2.length; j++) {
+        if (nums1[i] == nums2[j]) {
+          if (i - 1 >= 0 && j - 1 >= 0) {
+            dp[i][j] = dp[i - 1][j - 1] + 1;
+          } else {
+            dp[i][j] = 1;
+          }
+        }
+
+        if (dp[i][j] > result) {
+          result = dp[i][j];
+        }
+      }
+    }
+    return result;
   }
 
   public String longestPalindrome(String s) {
