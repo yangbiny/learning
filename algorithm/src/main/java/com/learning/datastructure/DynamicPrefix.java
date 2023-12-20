@@ -10,6 +10,9 @@ public class DynamicPrefix {
 
   public static void main(String[] args) {
 
+    int i1 = new DynamicPrefix().maxProfit(new int[]{7, 1, 5, 3, 6, 4});
+    System.out.println(i1);
+
     int length = new DynamicPrefix().findLength(new int[]{1, 2, 3, 2, 1}, new int[]{1, 2, 3, 2, 1});
     System.out.println(length);
 
@@ -32,6 +35,21 @@ public class DynamicPrefix {
     int[] nums = {10, 9, 2, 5, 3, 7, 101, 18};
     int[] x = new DynamicPrefix().lengthOfLIS2(nums);
     System.out.println(x);
+  }
+
+  public int maxProfit(int[] prices) {
+
+    int minPrice = Integer.MAX_VALUE;
+    int result = -1;
+
+    for (int price : prices) {
+      if (price < minPrice) {
+        minPrice = price;
+      } else if (price - minPrice > result) {
+        result = price - minPrice;
+      }
+    }
+    return result;
   }
 
   public int findLength(int[] nums1, int[] nums2) {
