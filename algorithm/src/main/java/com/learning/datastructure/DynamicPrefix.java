@@ -10,6 +10,9 @@ public class DynamicPrefix {
 
   public static void main(String[] args) {
 
+    int i5 = new DynamicPrefix().coinChange(new int[]{186, 419, 83, 408}, 6249);
+    System.out.println(i5);
+
     int[][] minPathSum = {
         {1, 3, 1},
         {1, 5, 1},
@@ -49,6 +52,24 @@ public class DynamicPrefix {
     int[] nums = {10, 9, 2, 5, 3, 7, 101, 18};
     int[] x = new DynamicPrefix().lengthOfLIS2(nums);
     System.out.println(x);
+  }
+
+  public int coinChange(int[] coins, int amount) {
+    if (amount == 0) {
+      return -1;
+    }
+    int[] dp = new int[amount + 1];
+    Arrays.fill(dp, amount + 1);
+    dp[0] = 0;
+    for (int i = 1; i <= amount; i++) {
+      for (int coin : coins) {
+        if (i >= coin) {
+          dp[i] = Math.min(dp[i - coin] + 1, dp[i]);
+        }
+      }
+    }
+
+    return dp[amount] > amount ? -1 : dp[amount];
   }
 
   public int minPathSum(int[][] grid) {
