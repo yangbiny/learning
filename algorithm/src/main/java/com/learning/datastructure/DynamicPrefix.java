@@ -2,6 +2,7 @@ package com.learning.datastructure;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Stack;
 
 /**
  * @author impassive
@@ -9,6 +10,9 @@ import java.util.Collections;
 public class DynamicPrefix {
 
   public static void main(String[] args) {
+
+    int i6 = new DynamicPrefix().longestValidParentheses("())");
+    System.out.println(i6);
 
     int i5 = new DynamicPrefix().coinChange(new int[]{186, 419, 83, 408}, 6249);
     System.out.println(i5);
@@ -52,6 +56,43 @@ public class DynamicPrefix {
     int[] nums = {10, 9, 2, 5, 3, 7, 101, 18};
     int[] x = new DynamicPrefix().lengthOfLIS2(nums);
     System.out.println(x);
+  }
+
+  public int longestValidParentheses(String s) {
+    if (s.isEmpty()) {
+      return 0;
+    }
+    char[] chars = s.toCharArray();
+    int[] dp = new int[chars.length + 1];
+    dp[0] = 0;
+    dp[1] = 0;
+
+    int result = 0;
+    for (int i = 1; i < chars.length; i++) {
+      if (chars[i] == '(') {
+        continue;
+      }
+      if (chars[i - 1] == '(') {
+        if (i - 2 >= 0) {
+          dp[i] = dp[i - 2] + 2;
+        } else {
+          dp[i] = 2;
+        }
+      } else {
+        if (i - dp[i -1] -1 >= 0 && chars[i - dp[i - 1] - 1] == '(' && dp[i - 1] > 0) {
+          int tmp = 0;
+          if (i - dp[i - 1] - 2 >= 0) {
+            tmp = dp[i - dp[i - 1] - 2];
+          }
+          dp[i] = dp[i - 1] + tmp + 2;
+        }
+      }
+      if (dp[i] > result) {
+        result = dp[i];
+      }
+    }
+
+    return result;
   }
 
   public int coinChange(int[] coins, int amount) {
@@ -241,7 +282,7 @@ public class DynamicPrefix {
   }
 
   public String multiply(String num1, String num2) {
-    if ("0".equals(num1) || "0".equals(num2)) {
+    if ("0" .equals(num1) || "0" .equals(num2)) {
       return "0";
     }
     int maxSize = num1.length() + num2.length();
