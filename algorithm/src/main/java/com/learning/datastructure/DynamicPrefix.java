@@ -11,6 +11,17 @@ public class DynamicPrefix {
 
   public static void main(String[] args) {
 
+    int i8 = new DynamicPrefix().uniquePaths(3, 2);
+    System.out.println(i8);
+
+    int i7 = new DynamicPrefix().maximalSquare(new char[][]{
+        {'1', '0', '1', '0', '0'},
+        {'1', '0', '1', '1', '1'},
+        {'1', '1', '1', '1', '1'},
+        {'1', '0', '0', '1', '0'}
+    });
+    System.out.println(i7);
+
     int i6 = new DynamicPrefix().longestValidParentheses("())");
     System.out.println(i6);
 
@@ -58,6 +69,40 @@ public class DynamicPrefix {
     System.out.println(x);
   }
 
+  public int uniquePaths(int m, int n) {
+    int[][] dp = new int[m][n];
+    dp[0][0] = 0;
+    Arrays.fill(dp[0], 1);
+    for (int i = 1; i < m; i++) {
+      dp[i][0] = 1;
+    }
+    for (int i = 1; i < m; i++) {
+      for (int j = 1; j < n; j++) {
+        dp[i][j] = dp[i - 1][j] + dp[i][j - 1];
+      }
+    }
+    return dp[m-1][n-1];
+  }
+
+
+  public int maximalSquare(char[][] matrix) {
+
+    int[][] dp = new int[matrix.length + 1][matrix[0].length + 1];
+    int maxSide = 0;
+
+    for (int i = 1; i <= matrix.length; i++) {
+      for (int j = 1; j < matrix[i - 1].length; j++) {
+        if (matrix[i - 1][j - 1] == '1') {
+          dp[i][j] = Math.min(Math.min(dp[i - 1][j - 1], dp[i - 1][j]), dp[i][j - 1]) + 1;
+        }
+        if (dp[i][j] > maxSide) {
+          maxSide = dp[i][j];
+        }
+      }
+    }
+    return maxSide * maxSide;
+  }
+
   public int longestValidParentheses(String s) {
     if (s.isEmpty()) {
       return 0;
@@ -79,7 +124,7 @@ public class DynamicPrefix {
           dp[i] = 2;
         }
       } else {
-        if (i - dp[i -1] -1 >= 0 && chars[i - dp[i - 1] - 1] == '(' && dp[i - 1] > 0) {
+        if (i - dp[i - 1] - 1 >= 0 && chars[i - dp[i - 1] - 1] == '(' && dp[i - 1] > 0) {
           int tmp = 0;
           if (i - dp[i - 1] - 2 >= 0) {
             tmp = dp[i - dp[i - 1] - 2];
@@ -282,7 +327,7 @@ public class DynamicPrefix {
   }
 
   public String multiply(String num1, String num2) {
-    if ("0" .equals(num1) || "0" .equals(num2)) {
+    if ("0".equals(num1) || "0".equals(num2)) {
       return "0";
     }
     int maxSize = num1.length() + num2.length();
