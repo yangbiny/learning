@@ -2,6 +2,7 @@ package com.learning.datastructure;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -10,6 +11,12 @@ import java.util.Stack;
 public class DynamicPrefix {
 
   public static void main(String[] args) {
+
+    boolean b = new DynamicPrefix().wordBreak("applepenapple", Arrays.asList("apple", "pen"));
+    System.out.println(b);
+
+    int rob = new DynamicPrefix().rob(new int[]{1, 2, 3, 1});
+    System.out.println(rob);
 
     int i8 = new DynamicPrefix().uniquePaths(3, 2);
     System.out.println(i8);
@@ -69,6 +76,34 @@ public class DynamicPrefix {
     System.out.println(x);
   }
 
+  public boolean wordBreak(String s, List<String> wordDict) {
+    boolean needContinue = true;
+    while (!s.isEmpty() && needContinue) {
+      for (String string : wordDict) {
+        if (s.startsWith(string)) {
+          needContinue = true;
+          s = s.replaceFirst(string, "");
+          break;
+        }
+        needContinue = false;
+      }
+    }
+    return s.isEmpty();
+  }
+
+
+  public int rob(int[] nums) {
+    int[] dp = new int[nums.length + 1];
+    dp[0] = 0;
+    dp[1] = nums[0];
+
+    for (int i = 2; i <= nums.length; i++) {
+      dp[i] = Math.max(nums[i - 1] + dp[i - 2], dp[i - 1]);
+    }
+    return dp[nums.length];
+  }
+
+
   public int uniquePaths(int m, int n) {
     int[][] dp = new int[m][n];
     dp[0][0] = 0;
@@ -81,7 +116,7 @@ public class DynamicPrefix {
         dp[i][j] = dp[i - 1][j] + dp[i][j - 1];
       }
     }
-    return dp[m-1][n-1];
+    return dp[m - 1][n - 1];
   }
 
 
