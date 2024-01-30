@@ -12,7 +12,7 @@ public class DynamicPrefix {
 
   public static void main(String[] args) {
 
-    boolean b = new DynamicPrefix().wordBreak("applepenapple", Arrays.asList("apple", "pen"));
+    boolean b = new DynamicPrefix().wordBreak("dogs", Arrays.asList("dog", "s", "gs"));
     System.out.println(b);
 
     int rob = new DynamicPrefix().rob(new int[]{1, 2, 3, 1});
@@ -77,18 +77,17 @@ public class DynamicPrefix {
   }
 
   public boolean wordBreak(String s, List<String> wordDict) {
-    boolean needContinue = true;
-    while (!s.isEmpty() && needContinue) {
+    boolean[] dp = new boolean[s.length() + 1];
+    dp[0] = true;
+    for (int i = 1; i <= s.length(); i++) {
+      String substring = s.substring(0, i);
       for (String string : wordDict) {
-        if (s.startsWith(string)) {
-          needContinue = true;
-          s = s.replaceFirst(string, "");
-          break;
+        if (substring.endsWith(string)) {
+          dp[i] = dp[i - string.length()] || dp[i];
         }
-        needContinue = false;
       }
     }
-    return s.isEmpty();
+    return dp[s.length()];
   }
 
 
