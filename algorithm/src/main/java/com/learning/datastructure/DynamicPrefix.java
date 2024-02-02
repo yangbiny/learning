@@ -12,6 +12,21 @@ public class DynamicPrefix {
 
   public static void main(String[] args) {
 
+    int i11 = new DynamicPrefix().maxProduct(new int[]{2, 3, -2, 4});
+    System.out.println(i11);
+
+    int i10 = new DynamicPrefix().numSquares(12);
+    System.out.println(i10);
+
+    int i9 = new DynamicPrefix().uniquePathsWithObstacles(new int[][]{
+        {0, 0, 0},
+        {0, 1, 0},
+        {0, 0, 0}});
+    System.out.println(i9);
+
+    int change = new DynamicPrefix().change(5, new int[]{1, 2, 5});
+    System.out.println(change);
+
     boolean b = new DynamicPrefix().wordBreak("dogs", Arrays.asList("dog", "s", "gs"));
     System.out.println(b);
 
@@ -74,6 +89,72 @@ public class DynamicPrefix {
     int[] nums = {10, 9, 2, 5, 3, 7, 101, 18};
     int[] x = new DynamicPrefix().lengthOfLIS2(nums);
     System.out.println(x);
+  }
+
+
+  public int maxProduct(int[] nums) {
+
+    int[][] dp = new int[nums.length + 1][2];
+    dp[0][0] = 1;
+    dp[0][1] = 1;
+    int result = Integer.MIN_VALUE;
+    for (int i = 1; i <= nums.length; i++) {
+      if (nums[i - 1] > 0) {
+        dp[i][0] = Math.max(dp[i - 1][0] * nums[i - 1], nums[i - 1]);
+        dp[i][1] = Math.min(dp[i - 1][1] * nums[i - 1], nums[i - 1]);
+      } else {
+        dp[i][0] = Math.max(dp[i - 1][1] * nums[i - 1], nums[i - 1]);
+        dp[i][1] = Math.min(dp[i - 1][0] * nums[i - 1], nums[i - 1]);
+      }
+      result = Math.max(result, dp[i][0]);
+    }
+    return result;
+  }
+
+  public int numSquares(int n) {
+    int[] dp = new int[n + 1];
+    Arrays.fill(dp, Integer.MAX_VALUE);
+    dp[0] = 0;
+    dp[1] = 1;
+    for (int i = 1; i <= n; i++) {
+      int sqrt = (int) Math.sqrt(i);
+      for (int j = 1; j <= sqrt; j++) {
+        dp[i] = Math.min(dp[i], dp[i - j * j] + 1);
+      }
+    }
+    return dp[n];
+  }
+
+  public int uniquePathsWithObstacles(int[][] obstacleGrid) {
+    int[][] dp = new int[obstacleGrid.length + 1][obstacleGrid[0].length + 1];
+
+    for (int i = 1; i <= obstacleGrid.length; i++) {
+      for (int j = 1; j <= obstacleGrid[i - 1].length; j++) {
+        if (obstacleGrid[i - 1][j - 1] == 1) {
+          continue;
+        }
+        if (((i == 1 || j == 1) && (dp[i - 1][j] > 0 || dp[i][j - 1] > 0)) || (i == j && j == 1)) {
+          dp[i][j] = 1;
+        } else {
+          dp[i][j] = dp[i - 1][j] + dp[i][j - 1];
+        }
+      }
+    }
+
+    return dp[obstacleGrid.length][obstacleGrid[0].length];
+  }
+
+  public int change(int amount, int[] coins) {
+    int[] dp = new int[amount + 1];
+    dp[0] = 1;
+
+    for (int coin : coins) {
+      for (int i = coin; i <= amount; i++) {
+        dp[i] = dp[i] + dp[i - coin];
+      }
+    }
+
+    return dp[amount];
   }
 
   public boolean wordBreak(String s, List<String> wordDict) {
