@@ -10,6 +10,8 @@ public class LinkSolution {
   public static void main(String[] args) {
     LinkSolution link = new LinkSolution();
 
+    partitionLink(link);
+
     addTwoNumbers(link);
 
     reverseKGroup(link);
@@ -23,10 +25,47 @@ public class LinkSolution {
     reverseBetween(link);
 
     deleteDuplicates(link);
+
   }
 
+  private static void partitionLink(LinkSolution link) {
+    ListNode listNode = new ListNode(1,
+        new ListNode(4, new ListNode(3, new ListNode(2, new ListNode(5, new ListNode(2))))));
+
+//    ListNode listNode = new ListNode(2, new ListNode(1));
+
+    ListNode partition = link.partition(listNode, 3);
+    System.out.println(partition);
+  }
+
+  public ListNode partition(ListNode head, int x) {
+    ListNode first = new ListNode(-1);
+    ListNode second = new ListNode(-1);
+
+    ListNode ftmp = first;
+    ListNode stmp = second;
+
+    ListNode h = head;
+    while (h != null) {
+      if (h.val < x) {
+        first.next = h;
+        first = first.next;
+      } else {
+        second.next = h;
+        second = second.next;
+      }
+      ListNode next = h.next;
+      h.next = null;
+      h = next;
+    }
+    first.next = stmp.next;
+
+    return ftmp.next;
+  }
+
+
   private static void addTwoNumbers(LinkSolution link) {
-    ListNode l1 = new ListNode(2, new ListNode(4, new ListNode(3,new ListNode(9))));
+    ListNode l1 = new ListNode(2, new ListNode(4, new ListNode(3, new ListNode(9))));
     ListNode l2 = new ListNode(5, new ListNode(6, new ListNode(4)));
 
     ListNode listNode = link.addTwoNumbers(l1, l2);
@@ -121,7 +160,7 @@ public class LinkSolution {
       l1 = l1 != null ? l1.next : null;
       l2 = l2 != null ? l2.next : null;
     }
-    if (value > 0){
+    if (value > 0) {
       tmp.next = new ListNode(value);
     }
     return result.next;
