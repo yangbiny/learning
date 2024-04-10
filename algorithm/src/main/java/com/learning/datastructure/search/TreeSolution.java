@@ -1,6 +1,13 @@
 package com.learning.datastructure.search;
 
+import com.learning.datastructure.ListNode;
 import com.learning.datastructure.TreeNode;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
 
 /**
  * @author impassive
@@ -9,10 +16,40 @@ public class TreeSolution {
 
   public static void main(String[] args) {
     TreeSolution treeSolution = new TreeSolution();
+    treeSolution.pathSum();
     treeSolution.islandPerimeter();
     treeSolution.numIslands();
     treeSolution.solve();
     treeSolution.hasPathSum();
+  }
+
+  private void pathSum() {
+    Integer[] arr = {5, 4, 8, 11, null, 13, 4, 7, 2, null, null, 5, 1};
+    TreeNode treeNode = TreeNodeUtils.createTreeNode(arr);
+    List<List<Integer>> lists = pathSum(treeNode, 22);
+    System.out.println(lists);
+  }
+
+  public List<List<Integer>> pathSum(TreeNode treeNode, Integer targetSum) {
+    List<List<Integer>> result = new ArrayList<>();
+    dfsPathSum(treeNode, targetSum, result, new ArrayDeque<>());
+    return result;
+  }
+
+
+  private void dfsPathSum(TreeNode treeNode, Integer targetSum, List<List<Integer>> result,
+      Deque<Integer> tmp) {
+    if (treeNode == null) {
+      return;
+    }
+
+    tmp.addLast(treeNode.val);
+    if (treeNode.val == targetSum && treeNode.left == null && treeNode.right == null) {
+      result.add(new ArrayList<>(tmp));
+    }
+    dfsPathSum(treeNode.left, targetSum - treeNode.val, result, tmp);
+    dfsPathSum(treeNode.right, targetSum - treeNode.val, result, tmp);
+    tmp.removeLast();
   }
 
 
