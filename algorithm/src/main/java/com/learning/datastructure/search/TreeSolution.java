@@ -1,13 +1,10 @@
 package com.learning.datastructure.search;
 
-import com.learning.datastructure.ListNode;
 import com.learning.datastructure.TreeNode;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingDeque;
 
 /**
  * @author impassive
